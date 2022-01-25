@@ -1,0 +1,111 @@
+<title>Matrix</title>
+<script>
+    class Matrix{
+        constructor(rows,cols){
+            this.rows = rows
+            this.cols = cols
+            this.matrix = []
+            for(let i = 0; i < this.rows; i++){
+                this.matrix[i] = []
+                for(let j = 0; j < this.cols; j++){
+                this.matrix[i][j] = 0
+                }
+            }
+        }
+        //randomizes the values of the matrix
+        randomize(){
+            for(let i = 0; i < this.rows; i++){
+                for(let j = 0; j < this.cols; j++){
+                this.matrix[i][j] = Math.floor(Math.random() * 10)
+                }
+            }
+        }
+        //multiply by a single value
+        scaler(num){
+            //this here because you cannot scale something by a vector
+            if(num instanceof Matrix){
+                console.log("uhm I think you have the wrong function. Maybe try multiply?")
+            }else{
+                for(let i = 0; i < this.rows; i++){
+                    for(let j = 0; j < this.cols; j++){
+                        this.matrix[i][j] *= num
+                    }
+                }
+            }
+        }
+        add(value){
+            //adding matrices
+            if(value instanceof Matrix){
+                if(this.rows == value.rows && this.cols == value.cols){
+                    for(let i = 0; i < this.rows; i++){
+                        for(let j = 0; j < this.cols; j++){
+                            this.matrix[i][j] += value.matrix[i][j]
+                        }
+                    }
+                }else{
+                    throw new Error("HEY. the matrix dimensions must be the same in order to add them bro.")
+                    }
+            }else{
+            //adding a value to each matrix
+            for(let i = 0; i < this.rows; i++){
+                for(let j = 0; j < this.cols; j++){
+                    this.matrix[i][j] += value
+                    }
+                }
+            }
+        }
+        //same code I just changed like a few things
+        subtract(value){
+            //subtracting matrices
+            if(value instanceof Matrix){
+                if(this.rows == value.rows && this.cols == value.cols){
+                    for(let i = 0; i < this.rows; i++){
+                        for(let j = 0; j < this.cols; j++){
+                            this.matrix[i][j] -= value.matrix[i][j]
+                        }
+                    }
+                }else{
+                    throw new Error("HEY. the matrix dimensions must be the same in order to subtract them bro.")
+                    }
+            }else{
+            //subtracting a value to each matrix
+            for(let i = 0; i < this.rows; i++){
+                for(let j = 0; j < this.cols; j++){
+                    this.matrix[i][j] -= value
+                    }
+                }
+            }
+        }
+        //MULTIPLY MATRICES. sigh.
+        multiply(m0){
+            if(!(m0 instanceof Matrix)){
+                //must be another matrix
+                throw new Error("not a matrix bro. try using the scalar function")
+            }else{
+                //rows n cols must be equal
+                if(this.cols == m0.rows){
+                    //here comes the pain. rows * columns and add result
+                    var rows = this.rows
+                    var cols = m0.cols
+                    var newMatrix = new Matrix(this.rows,m0.cols)
+                    for(let i = 0; i < rows; i++){
+                        for(let j = 0; j < cols; j++){
+                            var sum = 0
+                            for(let k = 0; k < this.cols; k++){
+                                sum += this.matrix[i][k] * m0.matrix[k][j]
+                            }
+                            newMatrix.matrix[i][j] = sum
+                        }
+                    }
+                    return newMatrix
+                }else{
+                    throw new Error("the 1st Matrix rows must be equal to the 2nd Matrix columns")
+                }
+            }
+        }
+        //this is so I can see the matrix so much easier
+        print(){
+            console.table(this.matrix)
+        }
+    }
+</script>
