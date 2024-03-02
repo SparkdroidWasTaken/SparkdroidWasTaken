@@ -1,0 +1,235 @@
+<title>Boids</title>
+<canvas id="box" width="500" height="500" style="border:0px solid black">
+<p id="time" style="color:white">heyy</p>
+</canvas>
+<style>
+    /*I'm not good at css so don't judge >:( */
+    body{
+        margin:0;
+        overflow: hidden;
+    }
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+    }
+    #smolBox {
+        display: flex;
+    }
+    #smolBox p {
+        margin-bottom: 0.1px;
+    }
+
+    #smolBox input {
+        width: 100%;
+    }
+    p{
+        font-size: small;
+        /*comic sans is beautiful*/
+        font-family:'Comic Sans MS', cursive;
+    }
+</style>
+<div id="smolBox">
+    <div>
+        <p>Alignment</p>
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="alignmentRange">
+    </div>
+    <div>
+        <p>Corhesion</p>
+        <input type="range" min="0" max="0.5" step="0.01" value="0.25" id="corhesionRange">
+    </div>
+    <div>
+        <p>Separation</p>
+        <input type="range" min="0" max="1" step="0.01" value="0.5" id="separationRange">
+    </div>
+    <div>
+        <p>Speed</p>
+        <input type="range" min="1" max="10" step="0.1" value="5" id="SpeedRange">
+    </div>
+</div>
+<script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    pen = box.getContext("2d")
+    pen.fillStyle = "rgb(0,0,0)"
+    pen.fillRect(0,0,box.width,box.height)
+    let alignmentStrength = 0
+    let corhesionStrength = 0
+    let separationStrength = 0
+    let Speed = 5
+    //edit the boid values
+    var alignmentRange = document.getElementById("alignmentRange")
+    alignmentRange.addEventListener("input", function () {
+        alignmentStrength = parseFloat(alignmentRange.value)
+    })
+    var corhesionRange = document.getElementById("corhesionRange")
+    corhesionRange.addEventListener("input", function () {
+        corhesionStrength = parseFloat(corhesionRange.value)
+    })
+    var separationRange = document.getElementById("separationRange")
+     separationRange.addEventListener("input", function () {
+         separationStrength = parseFloat( separationRange.value)
+    })
+    var SpeedRange = document.getElementById("SpeedRange")
+     SpeedRange.addEventListener("input", function () {
+         Speed = parseFloat( SpeedRange.value)
+    })
+    //give a random colour
+    function GenerateRandomColor(){
+        return `rgba(${Math.floor(Math.random() * (255 - 0 + 1) + 0)},${Math.floor(Math.random() * (255 - 0 + 1) + 0)},${Math.floor(Math.random() * (255 - 0 + 1) + 0)},1)`
+    }
+    //find the distance between 2 boids
+    function dist(item1,item2){
+        let x_dist = Math.abs(item1.x-item2.x)
+        let y_dist = Math.abs(item1.y-item2.y)
+        let distance = Math.hypot(x_dist,y_dist)
+        return distance
+    }
+    class Boid{
+        constructor(x,y){
+            this.x = x || Math.random()*box.width
+            this.y = y || Math.random()*box.height
+            this.size = 15
+            this.angle = Math.random() * ((2*Math.PI) - (-2*Math.PI)) + (-2*Math.PI)
+            this.color = "white"
+            this.eyecolor = GenerateRandomColor()
+            this.smilecolor = "black"
+            this.speed = Speed
+        }
+        draw(){
+            //this isn't the best way to go about this
+            pen.save()
+            pen.translate(this.x,this.y)
+            pen.rotate(this.angle)
+            pen.beginPath()
+            pen.fillStyle = this.color
+            pen.arc(0, 0, this.size, 0, 2 * Math.PI)
+            pen.fill()
+            //smile
+            pen.beginPath()
+            pen.fillStyle = this.smilecolor
+            pen.arc(0+this.size/3,0+this.size/3, this.size / 2,0,Math.PI)
+            pen.fill()
+            //tongue
+            pen.beginPath()
+            pen.fillStyle = "#FF1493"
+            pen.arc(0+this.size/3,(this.size)-this.size/5, this.size / 5,Math.PI,0)
+            pen.fill()
+            //eyes
+            //outline
+            pen.beginPath()
+            pen.fillStyle = this.eyecolor
+            pen.arc(0+this.size, 0, this.size/2, 0, 2 * Math.PI)
+            pen.fill()
+            //inner
+            pen.beginPath()
+            pen.fillStyle = "white"
+            pen.arc(0+this.size, 0, this.size/3, 0, 2 * Math.PI)
+            pen.fill()
+            //pupil
+            pen.beginPath()
+            pen.fillStyle = this.eyecolor
+            pen.arc((0+this.size)+this.size/5, 0-this.size/4, this.size/5, 0, 2 * Math.PI)
+            pen.fill()
+            //outline
+            pen.beginPath()
+            pen.fillStyle = this.eyecolor
+            pen.arc(0-this.size/3, 0, this.size/2, 0, 2 * Math.PI)
+            pen.fill()
+            //inner
+            pen.beginPath()
+            pen.fillStyle = "white"
+            pen.arc(0-this.size/3, 0, this.size/3, 0, 2 * Math.PI)
+            pen.fill()
+            //pupil
+            pen.beginPath()
+            pen.fillStyle = this.eyecolor
+            pen.arc((0-this.size/3)-this.size/5, 0, this.size/5, 0, 2 * Math.PI)
+            pen.fill()
+            pen.restore()
+        }
+        movement(array){
+            let avgAngle = 0
+            let closeboids = 0
+            let reallycloseboids = 0
+            let xdist = 0
+            let ydist = 0
+            let SepAngle = 0
+            let avgPos = {x:0,y:0}
+            for(let i = 0; i < array.length; i++){
+                if(array[i] != this){
+                    if(dist(this,array[i]) <= (this.size*3)){
+                        if(dist(this,array[i]) <= (this.size/2)){
+                            SepAngle += array[i].angle
+                            reallycloseboids++
+                        }
+                        avgPos.x += array[i].x
+                        avgPos.y+= array[i].y
+                        avgAngle +=array[i].angle
+                        closeboids++
+                    }
+                }
+            }
+            if(closeboids != 0){
+                //alignment
+                avgAngle = avgAngle/closeboids
+                this.angle += (avgAngle - this.angle)* alignmentStrength
+                //corhesion
+                avgPos.x = avgPos.x/closeboids
+                avgPos.y = avgPos.y/closeboids
+                xdist = this.x - avgPos.x
+                ydist = this.y - avgPos.y
+                let avgPosAngle = Math.atan2(ydist,xdist)
+                this.angle += (avgPosAngle - this.angle) * corhesionStrength
+                //seperation
+                if(reallycloseboids !=0){
+                    SepAngle = SepAngle / reallycloseboids
+                    this.angle += (-SepAngle - this.angle)* separationStrength
+                }
+            }
+        }
+        update(){
+            this.speed = Speed
+            this.movement(boids)
+            this.x += Math.cos(this.angle)*this.speed
+            this.y += Math.sin(this.angle)*this.speed
+            //x direction
+            if(this.x >= box.width + this.size){
+                this.x = -this.size
+            }else if(this.x <= -this.size){
+                this.x = box.width+this.size
+            }
+            //y direction
+            if(this.y >= box.height + this.size){
+                this.y = -this.size
+            }else if(this.y <= -this.size){
+                this.y = box.height+this.size
+            }
+        }
+    }
+    var boids = []
+    for(let i = 0; i < 200; i++){
+        boids.push(new Boid)
+    }
+    function loop(){
+        //updating
+        //resizing
+        box.width = innerWidth
+        box.height = innerHeight
+        //boids
+        for(let i = 0; i < boids.length; i++){
+            boids[i].update()
+        }
+        //drawing
+        pen.fillStyle = "rgb(100,100,255)"
+        //pen.fillStyle = "rgb(0,0,0)"
+        pen.fillRect(0,0,box.width,box.height)
+        for(let i = 0; i < boids.length; i++){
+            boids[i].draw()
+        }
+        requestAnimationFrame(loop)
+    }
+    loop()
+</script>
