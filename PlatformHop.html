@@ -1,0 +1,319 @@
+<title>Platform Hop</title>
+<canvas id="box" width="500" height="500" style="border:0px solid black">
+<img id="Character"src="GameBoi.png">
+<div id="box">
+<img id="CharacterFlipped"src="GameBoi.png">
+<img id="plattom" src="Platform.png">
+<meta name="viewport" content="user-scalable=no">
+</canvas>
+<style>
+#CharacterFlipped{
+-ms-transform: rotateX(180deg);
+  transform: scaleX(180);
+    }
+    /*u shouldn't be here bro*/
+body{
+margin:0;
+overflow: hidden;
+}
+</style>
+<script>
+//check if the user is on mobile
+var IsMobile;
+if(!navigator.userAgentData.mobile){
+    console.log("YOU'RE ON PC")
+    IsMobile = false
+}else{
+    console.log("a mobile user i see")
+    IsMobile = true
+}
+//a few basic stats
+var box = document.getElementById("box")
+box.width = innerWidth
+box.height = innerHeight
+pen = box.getContext("2d")
+var character = document.getElementById("Character")
+var characterF = document.getElementById("CharacterFlipped")
+var Plotform = document.getElementById("plattom")
+var left = false
+var right = false
+var up = false
+var StartSpeed = 100
+var speed = StartSpeed
+var Difficultly = 1
+var score = 0
+var highscore = 0
+var SpawnAreaY = box.height
+if(localStorage.getItem("highscore")){
+    highscore = localStorage.getItem("highscore")
+}
+var FrameCount = 0
+//controller controls
+let controllerindex = null
+let deadzone = 0.4
+window.addEventListener("gamepadconnected",(pew)=>{
+  console.log("controller connected!");
+  controllerindex = pew.gamepad.index
+})
+
+function GamepadControl(){
+    //console.log(gamepad[0].buttons[0].pressed)
+    if(controllerindex !== null){
+        let gamepad = navigator.getGamepads()[controllerindex]
+        if(gamepad.buttons[0].pressed){
+            up = true
+        }else{
+            up = false
+        }
+        if(gamepad.axes[0] <= -deadzone){
+            left = true
+        }else{left = false}
+        if(gamepad.axes[0] >= deadzone){
+            right = true
+        }else{right = false}
+        console.log(gamepad)
+        debugger
+        
+    }
+}
+window.addEventListener("gamepaddisconnected",(pew)=>{console.log("controller disconnected!");
+controllerindex = null
+})
+//pc controls
+document.addEventListener("keydown",function(press){
+    if(press.keyCode == 39){
+        right = true
+        character.style
+    }
+    if(press.keyCode == 37){
+        left = true
+    }
+    if(press.keyCode == 38 || press.keyCode == 32){
+        up = true
+    }
+})
+document.addEventListener("keyup",function(){
+    left = false
+    right = false
+    up = false
+})
+//button for mobile
+class button{
+    constructor(x,y,color,control){
+        this.x = x
+        this.y = y
+        this.height = 50
+        this.width = 50
+        this.right = this.x + this.width
+        this.down = this.y + this.height
+        this.control = control
+        this.color = color
+    }
+    draw(){
+        pen.fillStyle = this.color
+        pen.fillRect(this.x,this.y,this.width,this.height)
+    }
+    update(){
+        this.draw()
+    }
+}
+if(IsMobile){
+var LeftButton = new button(0,box.height - 50, "blue", "left")
+var RightButton = new button(90,box.height - 50, "blue", "right")
+var JumpButton = new button(box.width - 50 ,box.height - 50, "green", "up")
+SpawnAreaY =box.height-JumpButton.height
+}
+//PLAYER
+class Player{
+    constructor(){
+        this.x = box.width - 50
+        this.y = 250
+        this.width = 20
+        this.height = 20
+        this.left = this.x
+        this.right = this.x + this.width
+        this.up = this.y
+        this.down = this.y + this.height
+        this.color = "blue"
+        this.X_velocity = 0
+        this.Y_velocity = 0
+        this.Movespeed = 0.75
+        this.IsOnPlatform = true
+    }
+    draw(){
+        //pen.fillStyle = this.color
+        //pen.fillRect(this.x,this.y,this.width,this.height)
+            pen.drawImage(character, this.x, this.y)
+    }
+    jump(){
+        if(this.IsOnPlatform == true){
+            this.Y_velocity -= 10
+            this.y += this.Y_velocity
+            this.IsOnPlatform = false
+        }
+    }
+    update(){
+        this.draw()
+        //remember the parts
+        this.x = this.x
+        this.y = this.y
+        this.left = this.x
+        this.right = this.x + this.width
+        this.up = this.y
+        this.down = this.y + this.height
+        this.x += this.X_velocity
+
+        if(this.y < box.height){
+            this.Y_velocity +=0.5
+            this.y += this.Y_velocity
+        }
+        if(right == true){
+            this.X_velocity +=this.Movespeed
+        }
+        if(left == true){
+            this.X_velocity -=this.Movespeed
+        }
+        if(up == true){
+            this.jump()
+        }
+    }
+}
+
+var boi = new Player()
+
+class Platform{
+    constructor(x, y){
+        this.x =  x//box.width
+        this.y = y//Math.random() * box.height
+        this.width = 80
+        this.height = 20
+        this.left = this.x
+        this.right = this.x + this.width
+        this.up = this.y
+        this.down = this.y + this.height
+        this.color = "green"
+        this.X_velocity = 0
+        this.Movespeed = Difficultly
+    }
+    draw(){
+        pen.fillStyle = this.color
+        pen.fillRect(this.x,this.y,this.width,this.height)
+        pen.drawImage(Plotform, this.x, this.y)
+    }
+    update(){
+        this.draw()
+        this.x = this.x
+        this.y = this.y
+        this.left = this.x
+        this.right = this.x + this.width
+        this.up = this.y
+        this.down = this.y + this.height
+        this.X_velocity = this.Movespeed
+        this.x -= this.X_velocity
+        this.x = this.x
+    }
+}
+var platforms = []
+for (let i = 0; i < 1; i++) {
+    platforms.push(new Platform(boi.x, boi.down))
+    
+}
+function restartGame(){
+    boi.X_velocity = 0
+    boi.Y_velocity = 0
+    score = 0
+    platforms = []
+    boi.x = box.width - 50
+    boi.y = 250
+    speed = StartSpeed
+    Difficultly = 1
+    platforms=[]
+    platforms.push(new Platform(box.width - 50, 250))
+}
+function game(){
+    pen.save()
+    GamepadControl()
+    pen.imageSmoothingEnabled = false
+    pen.fillStyle = "rgb(135,206,235)"
+    if(IsMobile){
+        pen.fillRect(0,0,box.width,SpawnAreaY+JumpButton.height)
+    }else{
+        pen.fillRect(0,0,box.width,SpawnAreaY)
+    }
+    pen.fillStyle = "black"
+    pen.font= "20px Arial";
+    pen.fillText("score:"+score,0,20)
+    pen.fillText("highscore:"+highscore,0,40)
+    if(score > highscore){
+        highscore = score
+    }
+    if(window.innerHeight > window.innerWidth){
+        console.log("HAHA")
+        pen.fillStyle = "black"
+        pen.font = "20px Arial";
+        pen.fillText("you might want to rotate your device",(box.width/2)-140,box.height-40)
+    }
+    //mobile settings
+    if(IsMobile){
+        LeftButton.update()
+        RightButton.update()
+        JumpButton.update()
+        function controls(pew) {
+            var Controlx = pew.touches[0].clientX;
+            var Controly = pew.touches[0].clientY;
+            var RadiusX = pew.touches[0].radiusX;
+            var RadiusY = pew.touches[0].radiusY;
+            if (Controlx < LeftButton.x || Controlx > LeftButton.x + LeftButton.width || Controly < LeftButton.y || Controly > LeftButton.y + LeftButton.height) {}else{left = true}
+            if (Controlx < RightButton.x || Controlx > RightButton.x + RightButton.width || Controly < RightButton.y || Controly > RightButton.y + RightButton.height) {}else{right = true}
+            if (Controlx < JumpButton.x || Controlx > JumpButton.x + JumpButton.width || Controly < JumpButton.y || Controly > JumpButton.y + JumpButton.height) {}else{up = true}
+        }
+        document.addEventListener("touchstart",controls)
+        document.addEventListener("touchend",function(){
+        left = false
+        right = false
+        up = false
+    })
+    }
+    boi.update()
+    boi.X_velocity *=0.9
+    for (let i = 0; i < platforms.length; i++) {
+        platforms[i].update()
+        
+    }
+    FrameCount++
+    if(FrameCount % 30 == 0){
+        platforms.push(new Platform(box.width,Math.random() * (SpawnAreaY-20)))
+        score++
+        for (let i = 0; i < platforms.length; i++) {
+            Difficultly +=0.001
+        }
+
+    }
+    speed --
+    for (let i = 0; i < platforms.length; i++) {
+        if(boi.down >= platforms[i].up && boi.right >= platforms[i].left && platforms[i].right >= boi.left && platforms[i].down >= boi.up){
+            boi.IsOnPlatform = true
+                boi.Y_velocity = 0
+                boi.y = platforms[i].y - boi.height
+                boi.x -= platforms[i].X_velocity
+                if(up == true){
+                    boi.jump()
+                }
+        }
+    }
+    for (let i = 0; i < platforms.length; i++) {
+        if(platforms[i].right < 0){
+            platforms.splice(i,1)
+        }
+        
+    }
+    requestAnimationFrame(game)
+    if(boi.y > SpawnAreaY){
+        restartGame()
+        window.localStorage.setItem("highscore",highscore)
+    }
+    pen.restore()
+}
+game()
+//window.localStorage.removeItem("highscore")
+</script>
