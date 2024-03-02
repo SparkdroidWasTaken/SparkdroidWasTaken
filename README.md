@@ -1,2 +1,2 @@
 # MyPublicStuff
-This is where i'll show some code i'm fine with sharing :D
+This is where I'll keep projects I have made
