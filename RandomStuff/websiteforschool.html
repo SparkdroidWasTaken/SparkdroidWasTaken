@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Legal, Moral, Cultural Issues</title>
+        <style>
+            /*I hate css*/
+            html{
+                height: 100%;
+            }
+            body{
+                margin: 0;
+                overflow: hidden;
+                min-height: 100%;
+                height: 100%;
+                background-color: black;
+            }
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                /*visibility: hidden;*/
+                z-index: -1;
+            }
+            .MenuButton{
+                color: white;
+                background-color: #333;
+                border: none;
+                padding: 10px 20px;
+                margin: 10px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .MenuButton:hover{
+                background-color: #666;
+            }
+            #ButtonContainer{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 50px;
+            }
+            #defaultContainer{
+                padding-left: 35%;
+            }
+            /*****I copied this code from an old project i did***/
+            #box{
+                width: 500px;
+                height: 200px;
+                border: 1px solid rgb(255, 255, 255);
+                /*lets make it look amazing*/
+                background-color:rgb(0, 0, 0);
+            }
+            #boi{
+                width: 20px;
+                height: 50px;
+                font-size:10px;
+                border: 1px solid rgb(255, 255, 255);
+                color:white;
+                /*background-image:linear-gradient(yellow,rgb(199, 69, 247));*/
+                position: relative;
+                top: 130px;
+                /*****the animation features******/
+                transition: 1s;
+                animation-name: movingBoi;
+                animation-duration:2s;
+                animation-fill-mode:forwards;
+                animation-iteration-count:infinite;
+                animation-direction:alternate;
+                animation-timing-function:linear;
+            }
+            /*animations we have is scale translate rotate*/
+            /*************the animations*******************/
+            @keyframes movingBoi{
+                from{transform: translateX(-0)}
+                to{transform: translateX(480px) rotate(360deg)}
+                }
+            /*********************************************/
+            /*the flooor*/
+            #blocky{
+                width: 500px;
+                height: 40px;
+                color:white;
+                border: 1px solid white;
+                background-color:rgb(0, 0, 0);
+                position: relative;
+                right: 1px;
+                top: 130px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+        <h1 style="text-align:center; color:white;">Legal, Moral, &amp; Cultural Issues that surround computer use</h1>
+        <div id="ButtonContainer">
+            <button class="MenuButton" onclick="ChangePage('The Data Protection Act/GDPR')">The Data Protection Act/GDPR</button>
+            <button class="MenuButton" onclick="ChangePage('The Computer Misuse Act')">The Computer Misuse Act</button>
+            <button class="MenuButton" onclick="ChangePage('The Copyright Designs and Patents Act')">The Copyright Designs and Patents Act</button>
+            <button class="MenuButton" onclick="ChangePage('Regulation of Investigatory Powers Act')">Regulation of Investigatory Powers Act</button>
+            <button class="MenuButton" onclick="ChangePage('More Information')">More Information</button>
+            <button class="MenuButton" onclick="Simplify()" id="specialbutton">Simplify infomation</button>
+        </div>
+        <h2 style="text-align:center;color:white;" id="Heading">Welcome</h2>
+        <p style="text-align:center;color:white;" id="text">
+            <div id="defaultContainer">
+                <div id="box">
+                    <div id="boi">O_O</div>
+                    <div id="blocky" style="text-align: center;"></div>
+                </div>
+            </div>
+        </p>
+        <script>
+            //I have to be professional here
+            //we get the canvas so we can use it in JavaScript
+            //I've just realised if the canvas isn't supported then all this code is useless. yaYYYYYYYYYYY
+            let canvas = document.getElementById('canvas');
+            let title = document.getElementById("Heading");
+            let text = document.getElementById("text");
+            let pen = canvas.getContext('2d');
+            let boxText = document.getElementById("blocky")
+            //a few random quotes that can be said by refreshing the page
+            let RandomQuotes = ["Lovely weather we're having","RAM is volatile whereas ROM isn't","a constant is like a variable but the value never changes","<strong>I am bold text, nice to meet you.</strong>","<a href='https://youtu.be/dQw4w9WgXcQ'>Click here for more computer science notes</a>","Never give up on your <sup>Dreamsss</sup>.","arrays in around 99% of programming languages tend to start at 0 rather than 1.","A primary key is a unique ID for a record in a table.","A router connects a LAN network to a larger network like a WAN.","The SDLC has 6 parts:Analysis, Design, Implementaion, Testing, Deployment and Maintenance.","A XOR gate value is 1 if only 1 of the inputs are 1. if both are 1 or 0 the output is 0.","ASCII supports 128 characters, extended ASCII has 256 and Unicode supports around 65,536. Some newer versions support more.","<img src='https://bournetocode.com/projects/GCSE_Computing_Fundamentals/pages/img/Ethical_Issues_Main.png' style='width:50px;height=50px;'></img> I needed a picture so here"]
+            boxText.innerHTML = RandomQuotes[Math.floor(Math.random() * RandomQuotes.length)]
+            let IsSimplified = false
+            //simplify or add more content about these boring laws
+            function Simplify(){
+                boxText.innerHTML = `Press the button again to see the changes`
+                if(IsSimplified){
+                    document.getElementById("specialbutton").innerHTML = "Simplify infomation"
+                    IsSimplified = false
+                }else{
+                    document.getElementById("specialbutton").innerHTML = "Add more infomation"
+                    IsSimplified = true
+                }
+            }
+            //a particle which will fall from the sky every so often
+            class Particle{
+                constructor(){
+                    this.x = Math.random() * window.innerWidth;
+                    this.y = -10
+                    this.size = Math.random() * 10;
+                    this.color = `rgba(${Math.round(Math.random() * (255))},${Math.round(Math.random() * (255))},${Math.round(Math.random() * (255))},1)`;
+                    this.gravity = 0.1*this.size
+                };
+                draw(){
+                    pen.fillStyle = this.color;
+                    pen.beginPath();
+                    pen.arc(this.x,this.y,this.size,0,2*Math.PI);
+                    pen.fill();
+                    pen.closePath();
+                };
+                update(){
+                    this.gravity += 0.1*this.size;
+                    this.draw();
+                    this.y += this.gravity;
+                };
+            };
+            //an array of all the particles so we can update them all at the same time
+            let particles = [];
+            //this will spawn a particle every 75 milliseconds
+            setInterval(()=>{
+                particles.push(new Particle)
+            },75)
+            //a function which loops over spawning particles
+            function CoolBackground(){
+                pen.fillStyle = 'rgba(17,17,17,0.01)';
+                canvas.width = window.innerWidth;
+                canvas.height = window.outerHeight;
+                pen.fillRect(0,0,canvas.width,canvas.height);
+                for(let i = 0; i < particles.length; i++){
+                    particles[i].update();
+                    //get rid of the particle when it comes off the screen
+                    if(particles[i].y >= 10000){
+                        particles.splice(i,1)
+                    };
+                };
+                requestAnimationFrame(CoolBackground);
+            };
+            CoolBackground();
+            //a quick function to change the contents of the page
+            //this is the worse function on the planet.
+            function ChangePage(Text){
+                title.innerHTML = Text;
+                switch (Text) {
+                    case 'The Data Protection Act/GDPR':
+                        if(IsSimplified){
+                            text.innerHTML = `The Data Protection Act (DPA) and the General Data Protection Regulation (GDPR) are laws that control how companies collect and use personal information. The DPA was made in the UK a long time ago and was updated in 2018. It tells companies how to treat your information and gives you some rights, like knowing what they have and deleting it if you want. The GDPR is a newer law for all of Europe, and it gives you even more control over your information. Companies have to follow these rules or they can get in legal trouble.`
+
+                        }else{text.innerHTML = "The Data Protection Act (DPA) is a UK law that governs the collection, use, storage, and sharing of personal data. It was first introduced in 1984 and has been updated several times since then, with the most recent version being the Data Protection Act 2018. The DPA sets out rules and principles for how personal data should be handled. It gives individuals certain rights, such as the right to know what data is being held about them and the right to have their data deleted. It also places obligations on organizations that collect and process personal data, such as the requirement to obtain consent from individuals before using their data. The General Data Protection Regulation (GDPR) is a regulation introduced by the European Union (EU) in 2018 that strengthens data protection laws across the EU. It builds on the principles set out in the DPA and applies to all organizations that process the personal data of EU citizens, regardless of where the organization is located. The GDPR gives individuals greater control over their personal data, with strengthened rights such as the right to be forgotten and the right to data portability. It also places greater obligations on organizations, such as the requirement to appoint a Data Protection Officer (DPO) and report certain data breaches within 72 hours. Failure to comply with the DPA or GDPR can result in significant fines and reputational damage. It's important for organizations to take these laws seriously and ensure they are following the rules and principles set out in them."
+                    }
+                        
+                        break;
+                    case 'The Computer Misuse Act':
+                        if(IsSimplified){
+                            text.innerHTML = `The Computer Misuse Act (CMA) is a law in the UK that was made in 1990. It says that it is against the law to get into someone else's computer without their permission. There are three main ways you can break this law: <ol style="text-align:left;"><li>Getting into someone's computer or data without permission, even if you just look at it or copy it.</li><p></p><li>Getting into someone's computer or data without permission with the plan to do something else illegal.</li><p></p><li>Changing or deleting someone else's information on their computer without their permission.</li></ol>If you do any of these things, you could go to jail for up to 2 years for the first one and up to 10 years for the third one. The CMA also says that you can be punished even if you do these things outside of the UK, and it allows the UK to ask other countries to send people back if they broke this law.`
+                        }else{
+                            text.innerHTML = `The Computer Misuse Act (CMA) is a UK law that was introduced in 1990. It makes it illegal to access someone else's computer without permission. The CMA has three main offenses: <ol style ="text-align:left;"><li>Unauthorised access to computer material: This is where someone gains access to a computer system or data without permission. It covers both accessing and downloading information.</li><p></p>  <li>Unauthorised access with intent to commit a further offence: This is where someone gains access to a computer system or data without permission, with the intention of committing another criminal offence.</li><p></p> <li>Unauthorised modification of computer material: This is where someone changes or deletes information on someone else's computer system without permission. The CMA carries a maximum sentence of 2 years imprisonment for unauthorized access, and 10 years imprisonment for unauthorized modification. It also includes provisions for extradition and allows UK courts to prosecute offenses committed outside of the UK if they are deemed to be illegal under the CMA.</li></ol>`
+                        }
+                        break;
+                    case 'The Copyright Designs and Patents Act':
+                        if(IsSimplified){
+                            text.innerHTML = `The Copyright Designs and Patents Act (CDPA) is a law in the UK that protects the work of creators like artists, writers, and musicians. It gives them the right to control how their work is used and shared, like copying it or performing it in public. The law also covers the design of products, which means how they look. If a design is registered, the owner can control how it's used for a certain time. The CDPA also covers patents, which protect new inventions and ways of doing things. The law makes it illegal to copy or use a work that has copyright without the owner's permission. This includes downloading or sharing things like music, videos, or software. However, there are some exceptions, like using a work for research, criticism, or reporting. The law is enforced by the Intellectual Property Office (IPO) and breaking it can lead to punishment like fines or being sued.`
+                        }else{
+                            text.innerHTML = `The Copyright Designs and Patents Act (CDPA) is a UK law that covers intellectual property rights. The CDPA gives the creator of a work (e.g. an artist, writer or musician) exclusive rights to control how their work is used and distributed. This includes the right to copy the work, distribute it, and perform it in public. The CDPA also covers designs, which refers to the appearance of a product (e.g. its shape or pattern). A design can be registered under the CDPA, which gives the owner the exclusive right to use and license the design for a set period of time. Patents, which protect new inventions and processes, are also covered by the CDPA. The CDPA makes it illegal to copy or use a copyrighted work without permission from the copyright owner. This includes downloading and sharing copyrighted content such as music, videos and software. The law also provides for exceptions to copyright, such as using a work for research or private study, criticism or review, or for reporting current events. The CDPA is enforced by the Intellectual Property Office (IPO) and violations of the law can result in legal action, fines and damages.`
+                        }
+                        
+                        break;
+                    case 'Regulation of Investigatory Powers Act':
+                        if(IsSimplified){
+                            text.innerHTML = `The Regulation of Investigatory Powers Act 2000 (RIPA) is a law in the UK that controls how public authorities can listen in on conversations, secretly watch people, and get information about communications. The law says that they can only do these things if it's necessary and reasonable for a specific reason, like stopping crime or protecting the country. The law also sets up a system to check that the powers are being used properly, including a person who checks complaints and reports to Parliament. The law has been changed a few times, and one change in 2016 let authorities collect a lot of information at once and created a new group to make sure everything is done right.`
+                        }else{
+                            text.innerHTML = `The Regulation of Investigatory Powers Act 2000 (RIPA) is a UK law that regulates the interception of communications, the use of covert surveillance and the acquisition of communications data by public authorities. The act requires that such activities must be necessary and proportionate for a specific purpose, such as the prevention or detection of crime or the protection of national security. The act also provides for the establishment of a regulatory framework for the use of investigatory powers and the appointment of a commissioner to oversee compliance with the act. The commissioner has the power to investigate complaints and issue reports, which are presented to Parliament. The act has been amended several times, most notably by the Investigatory Powers Act 2016, which expanded the scope of investigatory powers to include the bulk collection of data and the creation of a new oversight body, the Investigatory Powers Commissioner's Office.`
+                        }
+                        break;
+                    case 'More Information':
+                        text.innerHTML = `Here's a few extra websites if you want to know more infomation aboout these laws: <ul style="text-align:left"><li><a href = "https://www.gov.uk/data-protection">Official UK government website</a></li><li><a href = "https://ico.org.uk/for-organisations/guide-to-data-protection/">Information Commissioner's Office (ICO)</a></li><li><a href = "https://gdpr-info.eu/">European Union General Data Protection Regulation (GDPR)</a></li><li><a href = "https://www.ipt-uk.com/legislation-and-guidance/regulation-of-investigatory-powers-act-2000/">Investigatory Powers Tribunal (IPT)</a></li>`
+                        break;
+                }
+            };
+        </script>
+    </body>
+</html>
