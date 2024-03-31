@@ -1,0 +1,196 @@
+<title>Cube Runner Game</title>
+<script src="NeuralNetwork.js"></script>
+<script src="Utils.js"></script>
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+</canvas>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+</style>
+<script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    var pen = box.getContext("2d")
+    localStorage.setItem("LastGamePlayed","Cube Runner")
+    //gravity
+    let Gravity = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).grav
+    //cube size
+    let CubeSize = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).cubesize
+    //gradient background
+    let gradient = pen.createLinearGradient(0,0,0,box.height)
+    gradient.addColorStop(0, 'blue')
+    gradient.addColorStop(0.25, "rgba(100,100,255,1)")
+    //ground
+    const GroundHeight = (box.height) - 60
+    //grass columns
+    let grasswidth = 10
+    let cols = Math.round(box.width/grasswidth)
+    //grass
+    let grass = []
+    for(let i = 0; i < cols+5; i++){
+      grass.push(new Grass(i*grasswidth))
+    }
+    //scores
+    let score = 0
+    //button functionality
+    let pos = {
+        x: 0,
+        y: 0
+    }
+    buttons = []
+    //Return to main menu button
+    buttons.push(new Button(
+        (box.width)-200,
+        (box.height) - 50,
+        180,
+        40,
+        "#CC0000",
+        "Back To Main Menu",
+        20,
+        "black",
+        function () {
+            this.color = "#FF0000";
+            this.textcolor = "#FFFFFF";
+        },
+        () => {
+            if(confirm("Are you sure you want to quit and go back to menu?")){
+                window.open("Main Menu.html")
+                window.close()
+            }
+        }
+    ))
+    //Runners
+    let Runners = []
+    //the AI
+    Runners.push(new Runner)
+    Runners[0].brain = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).brain
+    //The Player
+    Runners.push(new Runner(true))
+    Runners[1].color = "rgba(223,204,67,1)"
+    Runners[1].eyesColor = "rgba(240,10,141,1)"
+    //player movement
+    switch (JSON.parse(localStorage.getItem("SettingData")).JumpPref) {
+      case "Click":
+        document.addEventListener("click",()=>{
+          Runners[1].Jump()
+        })
+        break;
+        case "W key":
+        document.addEventListener("keydown",(e)=>{
+          if(e.keyCode == 87){
+            Runners[1].Jump()
+          }
+        })
+        break;
+        case "Spacebar":
+        document.addEventListener("keydown",(e)=>{
+          if(e.keyCode == 32){
+            Runners[1].Jump()
+          }
+        })
+        break;
+        case "Up key":
+        document.addEventListener("keydown",(e)=>{
+          if(e.keyCode == 38){
+            Runners[1].Jump()
+          }
+        })
+        break;
+    }
+    document.addEventListener("keydown",(e)=>{
+      if(e.keyCode == 49){
+        if(Runners[1].IsCrouching){
+          Runners[1].UnCrouch()
+        }else{
+          Runners[1].Crouch()
+        }
+      }
+    })
+    //obstacles
+    let AllObstacles = [ObstacleBlock, LongFlyingObstacle, FlyingObstacle, TallerObstcale]
+    let obstacles = []
+    obstacles.push(new FlyingObstacle)
+    //Game Loop
+    let FrameCount = 0
+    function GameLoop(){
+      //updating
+      FrameCount++
+      //update the grass
+      grass.forEach((Grasss,i)=>{
+        if(Grasss.x <= -Grasss.width){
+          grass.splice(i,1)
+          grass.push(new Grass(box.width))
+        }
+        Grasss.update()
+      })
+      //runners
+      Runners.forEach(runner=>{
+        runner.update()
+        //check if any of the runners have touched the obstacles. If so, rip
+        obstacles.forEach(obstacle=>{
+          if(touching(runner,obstacle)){
+            runner.isDead = true
+          }
+        })
+      })
+      //kill any runners if needed
+       Runners.forEach((runner,i)=>{
+        if(runner.isDead){
+          if(runner.IsHumanControlled){
+            window.alert("you lost, AI has won")
+          }else{
+            window.alert("you won!, AI has lost")
+          }
+          Runners.splice(i,1)
+          window.open("Main Menu.html")
+          window.close()
+        }
+      })
+      //Obstacles
+      obstacles.forEach(obstacle=>{
+        obstacle.update()
+      })
+      obstacles.forEach((obstacle,i)=>{
+        if(obstacle.x < -obstacle.width){
+          obstacles.splice(i,1)
+          score++
+        }
+      })
+      if(FrameCount % 80 == 0){
+        let NewItem = Math.floor(Math.random()* AllObstacles.length)
+        obstacles.push(new AllObstacles[NewItem])
+      }
+      //Drawing
+      //draw the background
+      pen.fillStyle = gradient
+      pen.fillRect(0,0,box.width,box.height)
+      //Floor
+      pen.fillStyle = "#80471C"
+      pen.fillRect(0,GroundHeight,box.width,60)
+      grass.forEach(grass=>{
+        grass.draw()
+      })
+      //Obstacles
+      obstacles.forEach(obstacle=>{
+        obstacle.draw()
+      })
+      //The runners
+      Runners.forEach(runner=>{
+        runner.draw()
+      })
+      //score
+      pen.fillStyle = "black"
+      pen.font= "20px Arial"
+      pen.fillText("Current Score:"+score,box.width/2,15)
+      //fps
+      if(JSON.parse(localStorage.getItem("SettingData")).ShowFps){
+        FpsCounter()
+      }
+      ButtonInteraction(pos,buttons,false)
+      requestAnimationFrame(GameLoop)
+    }
+    GameLoop()
+</script>

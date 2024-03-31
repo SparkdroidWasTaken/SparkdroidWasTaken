@@ -1,0 +1,293 @@
+<title>Flappy Bird AI</title>
+<script src="NeuralNetwork.js"></script>
+<script src="Utils.js"></script>
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+</canvas>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+</style>
+<script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    var pen = box.getContext("2d")
+    let population = 500
+    let gravity = 0.5
+    let generation = 1
+    let cycles = 1
+    let PipeSpeed = 5
+    let PipeFreq = 0.3
+    let spacing = 250
+    let score = 0
+    //if there's non-volatile AI
+    if(!JSON.parse(localStorage.getItem("SettingData")).VolatileAI && localStorage.getItem("SavedDataFlappyBird")){
+        generation = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).gen
+        gravity = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).grav
+        spacing = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).Spacing
+        PipeFreq = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).diff
+        PipeSpeed = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).PipeSpeed
+    }
+    let BG = new Image(box.width,box.height)
+    localStorage.setItem("LastGamePlayed","FlappyBird")
+    BG.src = "Flappy Bird BG.png"
+    let pos = {
+        x: 0,
+        y: 0
+    }
+    let pipes = []
+    pipes.push(new Pipe)
+    let birds = []
+    let SavedBirds = []
+    for(let i  = 0; i < population; i++){
+        birds.push(new Bird)
+        if(!JSON.parse(localStorage.getItem("SettingData")).VolatileAI && localStorage.getItem("SavedDataFlappyBird")){
+            birds[i].brain = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).brain
+            NeuralNetwork.mutate(birds[i].brain,0.25)
+        }
+    }
+    let buttons = []
+    //Return to main menu button
+    buttons.push(new Button(
+        (box.width)-200,
+        (box.height) - 50,
+        180,
+        40,
+        "#CC0000",
+        "Back To Main Menu",
+        20,
+        "black",
+        function () {
+            this.color = "#FF0000";
+            this.textcolor = "#FFFFFF";
+        },
+        () => {
+            if(confirm("Are you sure you want to quit and go back to menu?")){
+                window.open("Main Menu.html")
+                window.close()
+            }
+          }
+        ))
+    //save bird data
+    buttons.push(new Button(
+        20,
+        (box.height) - 50,
+        180,
+        40,
+        "#00DD00",
+        "Save Bird Data",
+        20,
+        "black",
+        function () {
+            this.color = "#00FF00";
+            this.textcolor = "#FFFFFF";
+        },
+        () => {
+            let data = {
+                brain:JSON.parse(localStorage.getItem("bestFlappyBrain")),
+                HighestScore:score,
+                PipeSpeed:PipeSpeed,
+                Spacing:spacing,
+                diff:PipeFreq,
+                grav:gravity,
+                gen:generation
+            }
+            localStorage.setItem("SavedDataFlappyBird",JSON.stringify(data))
+            console.log("saved")
+            GameRecentlySaved = true
+          }
+        ))
+    //directly play against AI
+     buttons.push(new Button(
+        220,
+        (box.height) - 50,
+        180,
+        40,
+        "#00DD00",
+        "Play Against A.I",
+        20,
+        "black",
+        function () {
+            this.color = "#00FF00";
+            this.textcolor = "#FFFFFF";
+        },
+        () => {
+            let data = {
+                brain:JSON.parse(localStorage.getItem("bestFlappyBrain")),
+                HighestScore:score,
+                PipeSpeed:PipeSpeed,
+                Spacing:spacing,
+                diff:PipeFreq,
+                grav:gravity,
+                gen:generation
+            }
+            localStorage.setItem("SavedDataFlappyBird",JSON.stringify(data))
+            console.log("saved")
+            GameRecentlySaved = true
+            window.open("Flappy Bird Game.html")
+          }
+        ))
+    
+    //save non-volatile A.I
+    if(!JSON.parse(localStorage.getItem("SettingData")).VolatileAI){
+        document.addEventListener("visibilitychange",() => {
+            let data = {
+                brain:JSON.parse(localStorage.getItem("bestFlappyBrain")),
+                HighestScore:score,
+                PipeSpeed:PipeSpeed,
+                Spacing:spacing,
+                diff:PipeFreq,
+                grav:gravity,
+                gen:generation
+            }
+            localStorage.setItem("SavedDataFlappyBird",JSON.stringify(data))
+          })
+    }
+    //stats for game that can be edited
+    let GenSpeed = new GameStat(0,20,cycles,"Generation Speed",0,100,1,buttons,"black",true)
+    let BirdCount = new GameStat(0,60,population,"Bird Count",1,1000,1,buttons,"black",true)
+    let PipeSpeedStat = new GameStat(0,100,PipeSpeed,"Pipe Speed",1,50,1,buttons,"black",true,5)
+    let PipeSpace = new GameStat(0,140,spacing,"Pipe Space",200,500,1,buttons,"black",true)
+    let Diff = new GameStat(0,180,PipeFreq,"Pipe Frequency",0.3,1,0.1,buttons,"black",true,0.5)
+    let Grav = new GameStat(0,220,gravity,"Gravity",0.2,5,0.1,buttons,"black",true,0.5)
+    let FrameCount = 0
+    let BestScore = 0
+    let BestBirdAllTime;
+    function restart(){
+        //next generation
+        generation++
+        //reset everything
+        score = 0
+        pipes = []
+        FrameCount = 0
+        //determine the best bird
+        let BestBird = SavedBirds[0]
+        let CurrentBestScore = SavedBirds[0].score
+        //get the best bird
+        for(let i = 0; i < SavedBirds.length; i++){
+            if(SavedBirds[i].score > BestBird.score){
+                BestBird = SavedBirds[i]
+            }
+        }
+        //save the brain
+            localStorage.setItem("bestFlappyBrain",JSON.stringify(BestBird.brain))
+            for(let i = 0; i < population; i++){
+                birds.push(new Bird)
+            }
+            for(let i = 0; i < birds.length; i++){
+                birds[i].brain = JSON.parse(localStorage.getItem("bestFlappyBrain"))
+                NeuralNetwork.mutate(birds[i].brain,0.25)
+            }
+            SavedBirds = []
+    }
+    let TotalScore = 0
+    let HighestGen = 0
+    let GameRecentlySaved = false
+    let DisappearTimer = 500
+    function GameLoop(){
+        //updates
+        for (let i = 0; i < cycles; i++) {
+           FrameCount++
+           //update the birds
+           for(let i = 0; i < birds.length; i++){
+               birds[i].update()
+               //check if the birds are out of bounds
+               if(birds[i].y < 0 || birds[i].y > box.height){
+                   birds[i].isDead = true
+               }
+               //collision detection with birds and pipe
+               pipes.forEach(pipe=>{
+                   //touches the top pipe
+                   if(birds[i].x+birds[i].width >= pipe.x && birds[i].x <= pipe.x+pipe.width && 0 <= birds[i].y+birds[i].height && birds[i].y <= pipe.top_height){
+                       birds[i].isDead = true
+                   }
+                   //touching the bottom pipe
+                    else if(birds[i].x+birds[i].width >= pipe.x && birds[i].x <= pipe.x+pipe.width && pipe.bottom_y <= birds[i].y+birds[i].height&& birds[i].y <= pipe.bottom_y+pipe.bottom_height){
+                       birds[i].isDead = true
+                   }
+                   //if the birds have collected the score from the pipe or not
+                   if(birds[i].x > pipe.x+pipe.width && !pipe.HasCollectedScore){
+                    score++
+                    pipe.HasCollectedScore = true
+                   }
+               })
+           }
+           //checks if a bird is dead
+           birds.forEach((bird,i)=>{
+               if(bird.isDead){
+                    SavedBirds.push(bird)
+                    birds.splice(i,1)
+               }
+           })
+           //if the score is larger than total score
+           if(score > TotalScore){
+            HighestGen = generation
+            TotalScore = score
+           }
+           //check if all the birds are dead
+           if(birds.length < 1){
+               restart()
+           }
+           //update the pipes
+           for(let i = 0; i < pipes.length; i++){
+               pipes[i].update()
+               //remove the pipe if it's off the screen
+               if(pipes[i].x < -pipes[i].width){
+                   pipes.splice(i,1)
+               }
+           }
+           //push a new pipe into the list
+           if(FrameCount % Math.floor((500 / (PipeSpeed*PipeFreq))) == 0){
+               pipes.push(new Pipe)
+           }
+        }
+        //drawing
+        //draw the background
+        pen.fillStyle = "rgba(100,100,255,1)"
+        pen.fillRect(0,0,box.width,box.height)
+        pen.drawImage(BG, 0, 0, box.width, box.height+5)
+        //draw the birds
+        birds.forEach(bird=>{
+            bird.draw()
+        })
+        //draw the pipes
+        pipes.forEach(pipe=>{
+            pipe.draw()
+        })
+        //fps
+        if(JSON.parse(localStorage.getItem("SettingData")).ShowFps){
+            FpsCounter()
+        }
+        //draw and update the buttons
+        ButtonInteraction(pos,buttons,false)
+        //check if game was recently saved
+        if(GameRecentlySaved){
+            DisappearTimer--
+        }
+        if(DisappearTimer <= 0 ){
+            GameRecentlySaved = false
+            DisappearTimer = 500
+        }
+        pen.fillStyle = "black"
+        pen.font= "20px Arial"
+        pen.fillText("generation:"+generation,box.width/2,15)
+        pen.fillText("Highest Score Achieved:"+TotalScore,box.width/2,35)
+        pen.fillText("Achieved in generation:"+HighestGen,box.width/2,55)
+        pen.fillText("Score of this generation:"+score,box.width/2,75)
+        if(GameRecentlySaved){
+            pen.fillText("game saved",box.width/2,95)
+        }
+        pen.textAlign = "start"
+        pen.textBaseline = "alphabetic"
+        cycles = GenSpeed.draw()
+        population = BirdCount.draw()
+        PipeSpeed = PipeSpeedStat.draw()
+        spacing = PipeSpace.draw()
+        PipeFreq = Diff.draw()
+        gravity = Grav.draw()
+        requestAnimationFrame(GameLoop)
+    }
+    GameLoop()
+</script>

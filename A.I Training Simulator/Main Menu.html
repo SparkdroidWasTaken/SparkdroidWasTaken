@@ -1,0 +1,866 @@
+<title>A.I Training Simulator</title>
+<script src="NeuralNetwork.js"></script>
+<script src="Utils.js"></script>
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+<script src="Background.js"></script>
+</canvas>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+</style>
+<script>
+  var box = document.getElementById("box")
+  box.width = innerWidth
+  box.height = innerHeight
+  pen = box.getContext("2d")
+  pen.fillStyle = "rgba(0,0,0,1)"
+  pen.fillRect(0, 0, box.width, box.height)
+  let IsOnGameMenu = false
+  let MenuTitle;
+  let TextDescription = " "
+  let GameDescription = {
+    GameImg: new Image(),
+    GameName: " ",
+    GameDes: " ",
+    MinsPlayed: " ",
+    AILevel: " ",
+  }
+  let AILevels = {
+    FlappyBird: localStorage.getItem("SavedDataFlappyBird") == null ? null : CheckLevel("FlappyBird", JSON.parse(localStorage.getItem("SavedDataFlappyBird"))),
+    CubeRunner: localStorage.getItem("SavedDataCubeRunner") == null ? null : CheckLevel("CubeRunner", JSON.parse(localStorage.getItem("SavedDataCubeRunner")))
+  }
+  let ButtonHoveredOver = ""
+  let buttons = []
+  let settingsstats = []
+  //last game played
+  let LastGamePlayed = localStorage.getItem("LastGamePlayed")
+  //saving data
+  let SettingsData ={
+    LowPowerMode:false,
+    LowPointer:0,
+    ShowFps:false,
+    ShowPointer:0,
+    MenuTheme: "Last game played",
+    MenuPointer:0,
+    VolatileAI: true,
+    VolatilePointer:0,
+    ShowTips:false,
+    TipsPointer:0,
+    JumpPref:"Spacebar",
+    JumpPointer:0
+  }
+  if(!localStorage.getItem("SettingData")){
+    localStorage.setItem("SettingData",JSON.stringify(SettingsData))
+  }
+  //choosing the colour scheme
+  let SelectedColorScheme = JSON.parse(localStorage.getItem("SettingData")).MenuTheme
+  let ColorScheme = GetColorScheme().then(data => {
+    if (data == "Failure") {
+      ColorScheme = {
+        RegularButtonColors: "#0000CC",
+        RegularButtonColorsLight: "#0000FF",
+        QuitButtonColors: "#CC0000",
+        QuitButtonColorsLight: "#FF0000",
+        RegularButtonText: "black",
+        RegularButtonTextLight: "#555555",
+        SettingsText: "#DDDDDD",
+        TitleText: "#FFFFFF",
+        BackgroundColor: "black"
+      }
+    } else if(SelectedColorScheme == "Last game played"){
+      let ColorSchemeToBeUsed;
+      switch (LastGamePlayed) {
+        case "FlappyBird":
+          ColorSchemeToBeUsed = data.FlappyBird
+          break;
+          case "Cube Runner":
+          ColorSchemeToBeUsed = data.CubeRunner
+          break;
+
+        default:
+          ColorSchemeToBeUsed = data.Default
+          break;
+      }
+      ColorScheme = ColorSchemeToBeUsed
+    }else if(SelectedColorScheme == "Flappy Bird"){
+      let ColorSchemeToBeUsed;
+      ColorSchemeToBeUsed = data.FlappyBird
+      ColorScheme = ColorSchemeToBeUsed
+    }else if(SelectedColorScheme == "Default"){
+      let ColorSchemeToBeUsed;
+      ColorSchemeToBeUsed = data.Default
+      ColorScheme = ColorSchemeToBeUsed
+    }else if(SelectedColorScheme == "Cube Runner"){
+      let ColorSchemeToBeUsed;
+      ColorSchemeToBeUsed = data.CubeRunner
+      ColorScheme = ColorSchemeToBeUsed
+    }else if(SelectedColorScheme == "Inverted"){
+      let ColorSchemeToBeUsed;
+      ColorSchemeToBeUsed = data.Inverted
+      ColorScheme = ColorSchemeToBeUsed
+    }
+  })
+  //change menu
+  function LoadMenu(Menu) {
+    IsOnGameMenu = false
+    buttons = []
+    settingsstats = []
+    switch (Menu) {
+      case "Options":
+        MenuTitle = "Options"
+        //Settings Button
+        buttons.push(new Button(
+          (box.width / 2) - 200,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Settings",//text
+          100,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Settings")
+          }//function when mouse clicks button
+        ))
+        //Stats Button
+        buttons.push(new Button(
+          (box.width / 3) - 400,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Stats",//text
+          100,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            console.log("Stats")
+          }//function when mouse clicks button
+        ))
+        //Back To Menu Button
+        buttons.push(new Button(
+          (2 * box.width / 3),//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Back To Menu",//text
+          60,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu()
+          }//function when mouse clicks button
+        ))
+        break;
+      case "Settings":
+        MenuTitle = "Settings"
+        //low power mode 
+        settingsstats.push(new SettingStat(
+          (box.width / 4) - 220,
+          (box.height / 2) - 90,
+          "Low Power Mode",
+          ["On", "Off"],
+          [
+          function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.LowPowerMode = true
+              d.LowPointer = 0
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.LowPowerMode = false
+              d.LowPointer = 1
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }
+          ],
+          ColorScheme.SettingsText,
+          JSON.parse(localStorage.getItem("SettingData")).LowPointer
+        ))
+        //show FPS
+        settingsstats.push(new SettingStat(
+          (box.width / 2) + 180,
+          (box.height / 2) - 90,
+          "Display FPS",
+          ["On", "Off"],
+          [          
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.ShowFps = true
+              d.ShowPointer = 0
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.ShowFps = false
+              d.ShowPointer = 1
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }
+          ],
+          ColorScheme.SettingsText,
+          JSON.parse(localStorage.getItem("SettingData")).ShowPointer
+        ))
+        //Colour scheme
+        settingsstats.push(new SettingStat(
+          (box.width / 2) + 520,
+          (box.height / 2) - 90,
+          "  Colour scheme ",
+          ["Last game played", "Default", "Flappy Bird", "Cube Runner", "Inverted"],
+          [
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.MenuTheme = "Last game played"
+              d.MenuPointer = 0
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }, 
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.MenuTheme = "Default"
+              d.MenuPointer = 1
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }, 
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.MenuTheme = "Flappy Bird"
+              d.MenuPointer = 2
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }, 
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.MenuTheme = "Cube Runner"
+              d.MenuPointer = 3
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.MenuTheme = "Inverted"
+              d.MenuPointer = 4
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }
+          ],
+          ColorScheme.SettingsText,
+          JSON.parse(localStorage.getItem("SettingData")).MenuPointer
+        ))
+        //Volatile A.I
+        settingsstats.push(new SettingStat(
+          (box.width / 4) - 220,
+          (box.height / 2) + 150,
+          "Volatile A.I",
+          ["On", "Off"],
+          [          
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.VolatileAI = true
+              d.VolatilePointer = 0
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.VolatileAI = false
+              d.VolatilePointer = 1
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }
+          ],
+          ColorScheme.SettingsText,
+          JSON.parse(localStorage.getItem("SettingData")).VolatilePointer
+        ))
+ /*        //Show tips on hover
+        settingsstats.push(new SettingStat(
+          (box.width / 4) - 220,
+          (box.height / 2) + 230,
+          "Display tips",
+          ["On", "Off"],
+          [          
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.ShowTips = true
+              d.TipsPointer = 0
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.ShowTips = false
+              d.TipsPointer = 1
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }
+          ],
+          ColorScheme.SettingsText,
+          JSON.parse(localStorage.getItem("SettingData")).TipsPointer
+        ))
+         *///Jump button preference
+        settingsstats.push(new SettingStat(
+          (box.width / 2) - 220,
+          (box.height / 2) - 90,
+          "Jump Button",
+          ["Spacebar", "W key", "Up key", "Click"],
+          [          
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.JumpPref = "Spacebar"
+              d.JumpPointer = 0
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.JumpPref = "W key"
+              d.JumpPointer = 1
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.JumpPref = "Up key"
+              d.JumpPointer = 2
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            },
+            function () {
+              let d = JSON.parse(localStorage.getItem("SettingData"))
+              d.JumpPref = "Click"
+              d.JumpPointer = 3
+              localStorage.setItem("SettingData",JSON.stringify(d))
+            }
+          ],
+          ColorScheme.SettingsText,
+          JSON.parse(localStorage.getItem("SettingData")).JumpPointer
+        ))
+        //Back to Options button
+        buttons.push(new Button(
+          (box.width) - 160,//X
+          (box.height) - 50,//Y
+          140,//Width
+          40,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Back To Menu",//text
+          20,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            SelectedColorScheme = JSON.parse(localStorage.getItem("SettingData")).MenuTheme
+            ColorScheme = GetColorScheme().then(data => {
+              if (data == "Failure") {
+                ColorScheme = {
+                  RegularButtonColors: "#0000CC",
+                  RegularButtonColorsLight: "#0000FF",
+                  QuitButtonColors: "#CC0000",
+                  QuitButtonColorsLight: "#FF0000",
+                  RegularButtonText: "black",
+                  RegularButtonTextLight: "#555555",
+                  SettingsText: "#DDDDDD",
+                  TitleText: "#FFFFFF",
+                  BackgroundColor: "black"
+                }
+              } else if(SelectedColorScheme == "Last game played"){
+                let ColorSchemeToBeUsed;
+                switch (LastGamePlayed) {
+                  case "FlappyBird":
+                    ColorSchemeToBeUsed = data.FlappyBird
+                    break;
+                    case "Cube Runner":
+                    ColorSchemeToBeUsed = data.CubeRunner
+                    break;
+
+                  default:
+                    ColorSchemeToBeUsed = data.Default
+                    break;
+                }
+                ColorScheme = ColorSchemeToBeUsed
+              }else if(SelectedColorScheme == "Flappy Bird"){
+                let ColorSchemeToBeUsed;
+                ColorSchemeToBeUsed = data.FlappyBird
+                ColorScheme = ColorSchemeToBeUsed
+              }else if(SelectedColorScheme == "Default"){
+                let ColorSchemeToBeUsed;
+                ColorSchemeToBeUsed = data.Default
+                ColorScheme = ColorSchemeToBeUsed
+              }else if(SelectedColorScheme == "Cube Runner"){
+                let ColorSchemeToBeUsed;
+                ColorSchemeToBeUsed = data.CubeRunner
+                ColorScheme = ColorSchemeToBeUsed
+              }else if(SelectedColorScheme == "Inverted"){
+                let ColorSchemeToBeUsed;
+                ColorSchemeToBeUsed = data.Inverted
+                ColorScheme = ColorSchemeToBeUsed
+              }
+            })
+            LoadMenu()
+          }//function when mouse clicks button
+        ))
+        break
+      case "Play":
+        MenuTitle = "Play"
+        //Play games Button
+        buttons.push(new Button(
+          (box.width / 2) - 200,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Play Games",//text
+          70,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Play Games")
+          }//function when mouse clicks button
+        ))
+        //Train Button
+        buttons.push(new Button(
+          (box.width / 3) - 400,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Train A.I",//text
+          80,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Train")
+          }//function when mouse clicks button
+        ))
+        //Back To Menu Button
+        buttons.push(new Button(
+          (2 * box.width / 3),//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Back To Menu",//text
+          60,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu()
+          }//function when mouse clicks button
+        ))
+        break;
+      case "Train":
+        MenuTitle = "Training"
+        //Flappy Bird Game
+        buttons.push(new Button(
+/*           (box.width / 2) - 200,//X
+          (box.height / 2) - 50,//Y */
+          (2 * box.width / 3),
+          (box.height / 2) - 50,
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Flappy Bird",//text
+          70,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+            TextDescription = "Teach AI to play the classic Flappy Bird game"
+            ButtonHoveredOver = "FlappyBird"
+          },//function when mouse is over button
+          () => {
+            window.open("Flappy Bird AI.html")
+            window.close()
+          }//function when mouse clicks button
+        ))
+        //Cube Runner Game
+        buttons.push(new Button(
+          (box.width / 3) - 400,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Cube Runner",//text
+          65,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+            TextDescription = "Teach AI cubes to avoid obstacles and run the farthest distance"
+            ButtonHoveredOver = "CubeRunner"
+          },//function when mouse is over button
+          () => {
+            window.open("Cube Runner AI.html")
+            window.close()
+          }//function when mouse clicks button
+        ))
+        /* // game 3
+        buttons.push(new Button(
+          (2 * box.width / 3),//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Training 3 ",//text
+          80,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            console.log("Train 3")
+          }//function when mouse clicks button
+        )) */
+        //Back to Play button
+        buttons.push(new Button(
+          (box.width) - 160,//X
+          (box.height) - 50,//Y
+          140,//Width
+          40,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Back To Menu",//text
+          20,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Play")
+          }//function when mouse clicks button
+        ))
+        break;
+      case "Play Games":
+        MenuTitle = "Play Games"
+        //Flappy Bird Game
+        buttons.push(new Button(
+          50,//X
+          (box.height / 2) - 140,//Y
+          250,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Flappy Bird",//text
+          50,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+            if(localStorage.getItem("SavedDataFlappyBird")){
+              GameDescription.GameName = "Flappy Bird"
+              GameDescription.GameDes = "Play the classic flappy bird using your own trained A.I"
+              GameDescription.AILevel = "A.I Level:" + AILevels.FlappyBird
+              GameDescription.MinsPlayed = "Minutes Played: " + 0
+              GameDescription.GameImg.src = "LogoFlappy.png"
+            }else{
+              GameDescription.GameImg.src = "LogoFlappy.png"
+              GameDescription.GameName = "Flappy Bird"
+              GameDescription.GameDes = "you must train a flappy bird A.I before you can play one."
+            }
+          },//function when mouse is over button
+          () => {
+            if(localStorage.getItem("SavedDataFlappyBird")){
+              window.open("Flappy Bird Game.html")
+              window.close()
+            }
+          }//function when mouse clicks button
+        ))
+        //Cube Runner
+        buttons.push(new Button(
+          50,//X
+          (box.height / 2),//Y
+          250,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Cube Runner",//text
+          42,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+            if(localStorage.getItem("SavedDataCubeRunner")){
+              GameDescription.GameName = "Cube Runner"
+              GameDescription.GameDes = "Run dodging obstacles using your own trained A.I"
+              GameDescription.AILevel = "A.I Level:" + AILevels.CubeRunner
+              GameDescription.MinsPlayed = "Minutes Played: " + 0
+              GameDescription.GameImg.src = "LogoRunner.png"
+            }else{
+              GameDescription.GameImg.src = "LogoRunner.png"
+              GameDescription.GameName = "Cube Runner"
+              GameDescription.GameDes = "Train a runner A.I before you play against one."
+            }
+          },//function when mouse is over button
+          () => {
+            if(localStorage.getItem("SavedDataCubeRunner")){
+              window.open("Cube Runner Game.html")
+              window.close()
+            }
+          }//function when mouse clicks button
+        ))
+        //Game 3
+/*         buttons.push(new Button(
+          50,//X
+          (box.height / 2) + 140,//Y
+          250,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Game 3",//text
+          70,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            console.log("Game 3")
+          }//function when mouse clicks button
+        )) */
+        //Back to Play button
+        buttons.push(new Button(
+          (box.width) - 160,//X
+          (box.height) - 50,//Y
+          140,//Width
+          40,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Back To Menu",//text
+          20,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Play")
+          }//function when mouse clicks button
+        ))
+        break
+      case "Flappy Bird":
+        MenuTitle = "Flappy Bird"
+        IsOnGameMenu = true
+        //PreBuilt A.I 1
+        buttons.push(new Button(
+          (box.width / 3) - 400,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "PreBuilt 1",//text
+          80,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            console.log("A.I 1")
+          }//function when mouse clicks button
+        ))
+        //PreBuilt A.I 2
+        buttons.push(new Button(
+          (box.width / 2) - 200,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "PreBuilt 1",//text
+          80,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            console.log("A.I 2")
+          }//function when mouse clicks button
+        ))
+        //Custom A.I
+        buttons.push(new Button(
+          (2 * box.width / 3),//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Custom A.I",//text
+          80,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+            TextDescription = "Play against your own A.I and see who is better!"
+          },//function when mouse is over button
+          () => {
+            window.open("Flappy Bird Game.html")
+            window.close()
+          }//function when mouse clicks button
+        ))
+        //Back to Play button
+        buttons.push(new Button(
+          (box.width) - 160,//X
+          (box.height) - 50,//Y
+          140,//Width
+          40,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Back To Menu",//text
+          20,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Play Games")
+          }//function when mouse clicks button
+        ))
+        break
+      default:
+        MenuTitle = "A.I. Training Simulator"
+        //Play Button
+        buttons.push(new Button(
+          (box.width / 2) - 200,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Play",//text
+          100,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Play")
+          }//function when mouse clicks button
+        ))
+        //Options Button
+        buttons.push(new Button(
+          (box.width / 3) - 400,//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.RegularButtonColors,//Color
+          "Settings",//text
+          100,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.RegularButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            LoadMenu("Settings")
+          }//function when mouse clicks button
+        ))
+        //quit Button
+        buttons.push(new Button(
+          (2 * box.width / 3),//X
+          (box.height / 2) - 50,//Y
+          400,//Width
+          100,//Height
+          ColorScheme.QuitButtonColors,//Color
+          "Quit",//text
+          100,//text size
+          ColorScheme.RegularButtonText,//text color
+          function () {
+            this.color = ColorScheme.QuitButtonColorsLight;
+            this.textcolor = ColorScheme.RegularButtonTextLight;
+          },//function when mouse is over button
+          () => {
+            if (confirm("Are you sure you want to quit?")) {
+              window.close()
+            }
+          }//function when mouse clicks button
+        ))
+        break;
+    }
+  }
+  //mouse movement for the button logic
+  let InteractedButtons = 0
+  let Pos = {
+    x: 0,
+    y: 0
+  }
+  //choosing a background
+  function loadBackground() {
+    //draw the background
+    switch (ButtonHoveredOver) {
+      case "FlappyBird":
+        if (localStorage.getItem("SavedDataFlappyBird") != null && !JSON.parse(localStorage.getItem("SettingData")).LowPowerMode) {
+          FlappyBirdGameplay()
+        } else {
+          pen.fillStyle = ColorScheme.BackgroundColor
+          pen.fillRect(0, 0, box.width, box.height)
+        }
+        break;
+      case "CubeRunner":
+        if (localStorage.getItem("SavedDataCubeRunner") != null && !JSON.parse(localStorage.getItem("SettingData")).LowPowerMode) {
+          CubeRunnerGameplay()
+        } else {
+          pen.fillStyle = ColorScheme.BackgroundColor
+          pen.fillRect(0, 0, box.width, box.height)
+        }
+        break
+      default:
+        pen.fillStyle = ColorScheme.BackgroundColor
+        pen.fillRect(0, 0, box.width, box.height)
+        break;
+    }
+  }
+  function Loop() {
+    loadBackground()
+    //Main title
+    pen.font = "100px Arial";
+    pen.fillStyle = ColorScheme.TitleText;
+    pen.textAlign = "center";
+    pen.textBaseline = "middle";
+    pen.fillText(MenuTitle, box.width / 2, (box.height / 2) - 200);
+    //Description text
+    pen.font = "20px Arial";
+    pen.fillStyle = "white";
+    pen.textAlign = "center";
+    pen.textBaseline = "middle";
+    pen.fillText(TextDescription, box.width / 2, (box.height - 50));
+    //fps
+    if(JSON.parse(localStorage.getItem("SettingData")).ShowFps){
+      FpsCounter()
+    }
+    //Description for games
+    pen.font = "50px Arial";
+    pen.fillStyle = "white";
+    pen.textAlign = "center";
+    pen.textBaseline = "middle";
+    pen.fillText(GameDescription.GameName, (box.width / 2) + (box.width / 4), (box.height / 2) + 100);
+    pen.font = "20px Arial";
+    pen.fillText(GameDescription.GameDes, (box.width / 2) + (box.width / 4), (box.height / 2) + 150);
+    pen.fillText(GameDescription.AILevel, (box.width / 2) + (box.width / 4), (box.height / 2) + 180);
+    pen.fillText(GameDescription.MinsPlayed, (box.width / 2) + (box.width / 4), (box.height / 2) + 210);
+    pen.drawImage(GameDescription.GameImg, ((box.width / 2) + (box.width / 4)) - 90, (box.height / 2) - 90, 200, 150)
+    //button logic
+    InteractedButtons = 0
+    ButtonInteraction(Pos, buttons, true)
+    //setting stat interaction
+    settingsstats.forEach(settingstat => {
+      settingstat.draw()
+    })
+    if (InteractedButtons < 1) {
+      TextDescription = " "
+      GameDescription.GameName = " "
+      GameDescription.GameDes = " "
+      GameDescription.AILevel = " "
+      GameDescription.MinsPlayed = " "
+      GameDescription.GameImg.src = "blank.png"
+      ButtonHoveredOver = ""
+    }
+    requestAnimationFrame(Loop)
+  }
+  window.addEventListener("load", () => {Loop();LoadMenu();})
+</script>

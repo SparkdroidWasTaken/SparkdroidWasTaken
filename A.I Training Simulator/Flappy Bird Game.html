@@ -1,0 +1,196 @@
+<title>Flappy Bird Game</title>
+<script src="NeuralNetwork.js"></script>
+<script src="Utils.js"></script>
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+</canvas>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+</style>
+<script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    var pen = box.getContext("2d")
+    let buttons = []
+    let CanStartNow = false
+    let WinnerText = " "
+    let gravity = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).grav
+    let PipeSpeed = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).PipeSpeed
+    let PipeFreq = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).diff
+    let spacing = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).Spacing
+    let score = 0
+    let BG = new Image(box.width,box.height)
+    BG.src = "Flappy Bird BG.png"
+    let pos = {
+        x: 0,
+        y: 0
+    }
+    //Return to main menu button
+    buttons.push(new Button(
+        (box.width)-200,
+        (box.height) - 50,
+        180,
+        40,
+        "#CC0000",
+        "Back To Main Menu",
+        20,
+        "black",
+        function () {
+            this.color = "#FF0000";
+            this.textcolor = "#FFFFFF";
+        },
+        () => {
+            if(confirm("Are you sure you want to quit and go back to menu?")){
+                window.open("Main Menu.html")
+                window.close()
+            }
+        }
+    ))
+    //pipes
+    let pipes = []
+    pipes.push(new Pipe)
+    //birds
+    let birds = []
+    birds.push(new Bird(true))
+    birds.push(new Bird)
+    //give the second bird the A.I
+    birds[1].brain = JSON.parse(localStorage.getItem("SavedDataFlappyBird")).brain
+    //control the first bird
+     switch (JSON.parse(localStorage.getItem("SettingData")).JumpPref) {
+      case "Click":
+        document.addEventListener("click",()=>{
+          birds[0].flap()
+        })
+        break;
+        case "W key":
+        document.addEventListener("keydown",(e)=>{
+          if(e.keyCode == 87){
+            birds[0].flap()
+          }
+        })
+        break;
+        case "Spacebar":
+        document.addEventListener("keydown",(e)=>{
+          if(e.keyCode == 32){
+            birds[0].flap()
+          }
+        })
+        break;
+        case "Up key":
+        document.addEventListener("keydown",(e)=>{
+          if(e.keyCode == 38){
+            birds[0].flap()
+          }
+        })
+        break;
+    }
+    //Game items
+    let FrameCount = 0
+    //the gameloop
+    function Loop(){
+        //updates
+        FrameCount++
+        //update the birds
+        for(let i = 0; i < birds.length; i++){
+            birds[i].update()
+            //check if the birds are out of bounds
+            if(birds[i].y < 0 || birds[i].y > box.height){
+                birds[i].isDead = true
+            }
+            //collision detection with birds and pipe
+            pipes.forEach(pipe=>{
+            //touches the top pipe
+            if(birds[i].x+birds[i].width >= pipe.x && birds[i].x <= pipe.x+pipe.width && 0 <= birds[i].y+birds[i].height && birds[i].y <= pipe.top_height){
+                birds[i].isDead = true
+            }
+            //touching the bottom pipe
+            else if(birds[i].x+birds[i].width >= pipe.x && birds[i].x <= pipe.x+pipe.width && pipe.bottom_y <= birds[i].y+birds[i].height&& birds[i].y <= pipe.bottom_y+pipe.bottom_height){
+                birds[i].isDead = true
+            }
+            //if the birds have collected the score from the pipe or not
+            if(birds[i].x > pipe.x+pipe.width && !pipe.HasCollectedScore){
+                score++
+                pipe.HasCollectedScore = true
+                }
+            })
+        }
+        //kill the bird and declare a winner
+        birds.forEach((bird,i)=>{
+            if(bird.isDead){
+                if(bird.HumanControlled){
+                    window.alert("you lost, AI has won")
+                }else{
+                    window.alert("you won!, AI has lost")
+                }
+                birds.splice(i,1)
+                window.open("Main Menu.html")
+                window.close()
+            }
+        })
+        //update the pipes
+        for(let i = 0; i < pipes.length; i++){
+            pipes[i].update()
+            //remove the pipe if it's off the screen
+            if(pipes[i].x < -pipes[i].width){
+                pipes.splice(i,1)
+            }
+        }
+        //push a new pipe into the list
+        if(FrameCount % Math.floor((500 / (PipeSpeed*PipeFreq))) == 0){
+            pipes.push(new Pipe)
+        }
+        //draw the background
+        pen.fillStyle = "rgba(100,100,255,1)"
+        pen.fillRect(0,0,box.width,box.height)
+        pen.drawImage(BG, 0, 0, box.width, box.height+5)
+        //draw everything else
+        //draw the birds
+        birds.forEach(bird=>{
+            bird.draw()
+        })
+        //draw the pipes
+        pipes.forEach(pipe=>{
+            pipe.draw()
+        })
+        //fps
+        if(JSON.parse(localStorage.getItem("SettingData")).ShowFps){
+            FpsCounter()
+        }
+        //text
+        pen.fillStyle = "black"
+        pen.font= "20px Arial"
+        pen.fillText("Current Score:"+score,box.width/2,20)
+        pen.fillText(WinnerText,box.width/2,50)
+        ButtonInteraction(pos,buttons,false)
+        if(CanStartNow){
+            requestAnimationFrame(Loop)
+        }
+    }
+    let Count = 11
+    let CountDownText = "Game Begins in:"+Count
+    for(let i = 0; i < 1; i++){
+            Loop()
+        }
+    function CountDown(){
+        Count--
+        CountDownText = "Game Begins in:"+Count
+        pen.fillStyle = "rgba(0,195,252,1)"
+        pen.fillRect((box.width/2)-100,0,200,100)
+        pen.fillStyle = "black"
+        pen.font= "20px Arial"
+        pen.fillText(CountDownText,box.width/2,20)
+        if(Count <= 0){
+            pen.fillStyle = "rgba(195,252,255,1)"
+            CountDownText = " "
+            pen.fillRect((box.width/2)-100,0,200,100)
+            CanStartNow = true
+            Loop()
+            clearInterval(CountDownStart)
+        }
+    }
+    let CountDownStart = setInterval(CountDown,1000)
+    window.addEventListener("load", () => {Loop();CountDown();})
+</script>

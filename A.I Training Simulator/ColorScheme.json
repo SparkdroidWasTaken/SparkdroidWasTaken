@@ -1,0 +1,48 @@
+{
+    "ColorScheme":{
+        "Default":{
+            "RegularButtonColors":"#0000CC",
+            "RegularButtonColorsLight":"#0000FF",
+            "QuitButtonColors":"#CC0000",
+            "QuitButtonColorsLight":"#FF0000",
+            "RegularButtonText":"black",
+            "RegularButtonTextLight":"#555555",
+            "SettingsText":"#CCCCCC",
+            "TitleText":"#FFFFFF",
+            "BackgroundColor":"black"
+        },
+        "FlappyBird":{
+            "RegularButtonColors":"#00DD00",
+            "RegularButtonColorsLight":"#00FF00",
+            "QuitButtonColors":"#CC0000",
+            "QuitButtonColorsLight":"#FF0000",
+            "RegularButtonText":"black",
+            "RegularButtonTextLight":"white",
+            "SettingsText":"black",
+            "TitleText":"white",
+            "BackgroundColor":"rgba(100,100,255,1)"
+        },
+        "CubeRunner":{
+            "RegularButtonColors":"rgba(223,204,67,1)",
+            "RegularButtonColorsLight":"rgba(253,234,97,1)",
+            "QuitButtonColors":"#DDCCCC",
+            "QuitButtonColorsLight":"#FFDDDD",
+            "RegularButtonText":"rgba(240,10,141,1)",
+            "RegularButtonTextLight":"white",
+            "SettingsText":"black",
+            "TitleText":"white",
+            "BackgroundColor":"rgba(100,100,255,1)"
+        },
+        "Inverted":{
+            "RegularButtonColors": "#FFFF33",
+            "RegularButtonColorsLight": "#FFFF00",
+            "QuitButtonColors": "#33FFFF",
+            "QuitButtonColorsLight": "#00FFFF",
+            "RegularButtonText": "white",
+            "RegularButtonTextLight": "#AAAAAA",
+            "SettingsText": "#333333",
+            "TitleText": "#000000",
+            "BackgroundColor": "white"
+        }
+    }
+}

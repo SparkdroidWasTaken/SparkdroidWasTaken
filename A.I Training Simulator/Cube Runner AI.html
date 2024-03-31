@@ -1,0 +1,296 @@
+<title>Cube Runner AI</title>
+<script src="NeuralNetwork.js"></script>
+<script src="Utils.js"></script>
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+</canvas>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+</style>
+<script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    var pen = box.getContext("2d")
+    localStorage.setItem("LastGamePlayed","Cube Runner")
+    //gravity
+    let Gravity = 1
+    //Population
+    let population = 500
+    //generation
+    let generation = 1
+    //cycles
+    let cycles = 1
+    //scores
+    let score = 0
+    let TotalScore = 0
+    let HighestGen = 1
+    //saving system
+    let DisappearTimer = 500
+    let GameRecentlySaved = false
+    //background
+    var gradient = pen.createLinearGradient(0,0,0,box.height)
+    gradient.addColorStop(0, 'blue')
+    gradient.addColorStop(0.25, "rgba(100,100,255,1)")
+    //ground
+    const GroundHeight = (box.height) - 60
+    //cube size
+    let CubeSize = 40
+    //if there's non-volatile AI
+    if(!JSON.parse(localStorage.getItem("SettingData")).VolatileAI && localStorage.getItem("SavedDataCubeRunner")){
+      CubeSize = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).cubesize
+      generation = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).gen
+      Gravity = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).grav
+    }
+    //grass columns
+    let grasswidth = 10
+    let cols = Math.round(box.width/grasswidth)
+    //button functionality
+    let pos = {
+        x: 0,
+        y: 0
+    }
+    buttons = []
+    //Return to main menu button
+    buttons.push(new Button(
+        (box.width)-200,
+        (box.height) - 50,
+        180,
+        40,
+        "#CC0000",
+        "Back To Main Menu",
+        20,
+        "black",
+        function () {
+            this.color = "#FF0000";
+            this.textcolor = "#FFFFFF";
+        },
+        () => {
+            if(confirm("Are you sure you want to quit and go back to menu?")){
+                window.open("Main Menu.html")
+                window.close()
+            }
+        }
+    ))
+    //save Runner data
+    buttons.push(new Button(
+      20,
+      (box.height) - 50,
+      180,
+      40,
+      "#00DD00",
+      "Save Runner Data",
+      20,
+      "black",
+      function () {
+        this.color = "#00FF00";
+        this.textcolor = "#FFFFFF";
+      },
+      () => {
+        let data = {
+          brain:JSON.parse(localStorage.getItem("bestRunnerBrain")),
+          HighestScore:score,
+          cubesize:CubeSize,
+          grav:Gravity,
+          gen:generation
+        }
+        localStorage.setItem("SavedDataCubeRunner",JSON.stringify(data))
+        console.log("saved")
+        GameRecentlySaved = true
+      }
+    ))
+    //directly play against AI
+    buttons.push(new Button(
+      220,
+      (box.height) - 50,
+      180,
+      40,
+      "#00DD00",
+      "Play Against A.I",
+      20,
+      "black",
+      function () {
+          this.color = "#00FF00";
+          this.textcolor = "#FFFFFF";
+      },
+      () => {
+        let data = {
+          brain:JSON.parse(localStorage.getItem("bestRunnerBrain")),
+          HighestScore:score,
+          cubesize:CubeSize,
+          grav:Gravity,
+          gen:generation
+        }
+        localStorage.setItem("SavedDataCubeRunner",JSON.stringify(data))
+        console.log("saved")
+        GameRecentlySaved = true
+        window.open("Cube Runner Game.html")
+      }
+    ))
+    //save non-volatile A.I
+    if(!JSON.parse(localStorage.getItem("SettingData")).VolatileAI){
+      document.addEventListener("visibilitychange",() => {
+        let data = {
+          brain:JSON.parse(localStorage.getItem("bestRunnerBrain")),
+          HighestScore:score,
+          cubesize:CubeSize,
+          grav:Gravity,
+          gen:generation
+        }
+        localStorage.setItem("SavedDataCubeRunner",JSON.stringify(data))
+      })
+    }
+    let Runners = []
+    for(let i = 0; i < population; i++){
+      Runners.push(new Runner)
+      if(!JSON.parse(localStorage.getItem("SettingData")).VolatileAI && localStorage.getItem("SavedDataCubeRunner")){
+        Runners[i].brain = JSON.parse(localStorage.getItem("SavedDataCubeRunner")).brain
+            NeuralNetwork.mutate(Runners[i].brain,0.25)
+        }
+    }
+    let AllObstacles = [ObstacleBlock, LongFlyingObstacle, FlyingObstacle, TallerObstcale]
+    let obstacles = []
+    obstacles.push(new FlyingObstacle)
+    let grass = []
+    for(let i = 0; i < cols+5; i++){
+      grass.push(new Grass(i*grasswidth))
+    }
+    //stats for game that can be edited
+    let GenSpeed = new GameStat(0,20,cycles,"Generation Speed",0,100,1,buttons,"black",true)
+    let RunnerCount = new GameStat(0,60,population,"Runner Count",1,1000,1,buttons,"black",true)
+    let CubeSizes = new GameStat(0,100,CubeSize,"Cube Size",20,120,1,buttons,"black",true,10)
+    let Grav = new GameStat(0,140,Gravity,"Gravity",1,5,0.1,buttons,"black",true,1)
+    let FrameCount = 0
+    let SavedRunners = []
+    function Restart(){
+      //next generation
+      generation++
+      //reset everything
+      obstacles = []
+      FrameCount = 0
+      score = 0
+      //find the best runner
+      let BestRunner = SavedRunners[0]
+      let CurrentBestScore = SavedRunners[0].score
+      //get the best bird
+      for(let i = 0; i < SavedRunners.length; i++){
+          if(SavedRunners[i].score > BestRunner.score){
+              BestRunner = SavedRunners[i]
+          }
+      }
+      //save the brain
+      localStorage.setItem("bestRunnerBrain",JSON.stringify(BestRunner.brain))
+      for(let i = 0; i < population; i++){
+        Runners.push(new Runner)
+      }
+      for(let i = 0; i < Runners.length; i++){
+        Runners[i].brain = JSON.parse(localStorage.getItem("bestRunnerBrain"))
+        NeuralNetwork.mutate(Runners[i].brain,0.25)
+      }
+      SavedRunners = []
+      //prevents the program from breaking
+      obstacles.push(new FlyingObstacle)
+    }
+    function GameLoop(){
+      for(let i = 0; i < cycles; i++) {
+        //updating
+        FrameCount++
+        //runners
+        Runners.forEach(runner=>{
+          runner.update()
+          //check if any of the runners have touched the obstacles. If so, rip
+          obstacles.forEach(obstacle=>{
+            if(touching(runner,obstacle)){
+              runner.isDead = true
+            }
+          })
+        })
+        //kill any runners if needed
+        Runners.forEach((runner,i)=>{
+          if(runner.isDead){
+            SavedRunners.push(runner)
+            Runners.splice(i,1)
+          }
+        })
+        //restart the game if all the runners are dead
+        if(Runners.length == 0){
+          Restart()
+        }
+        //Obstacles
+        obstacles.forEach(obstacle=>{
+          obstacle.update()
+        })
+        obstacles.forEach((obstacle,i)=>{
+          if(obstacle.x < -obstacle.width){
+            obstacles.splice(i,1)
+            score++
+          }
+        })
+        //if the score is larger than total score
+        if(score > TotalScore){
+          HighestGen = generation
+          TotalScore = score
+        }
+        if(FrameCount % 80 == 0){
+          let NewItem = Math.floor(Math.random()* AllObstacles.length)
+          obstacles.push(new AllObstacles[NewItem])
+        }
+        //update the grass
+        grass.forEach((Grasss,i)=>{
+          if(Grasss.x <= -Grasss.width){
+            grass.splice(i,1)
+            grass.push(new Grass(box.width))
+          }
+          Grasss.update()
+        })
+      }
+      //Drawing
+      //draw the background
+      pen.fillStyle = gradient
+      pen.fillRect(0,0,box.width,box.height)
+      //The runners
+      Runners.forEach(runner=>{
+        runner.draw()
+      })
+      //Obstacles
+      obstacles.forEach(obstacle=>{
+        obstacle.draw()
+      })
+      //check if game was recently saved
+      if(GameRecentlySaved){
+          DisappearTimer--
+      }
+      if(DisappearTimer <= 0 ){
+        GameRecentlySaved = false
+        DisappearTimer = 500
+      }
+      //Floor and text
+      pen.fillStyle = "#80471C"
+      pen.fillRect(0,GroundHeight,box.width,60)
+      grass.forEach(grass=>{
+        grass.draw()
+      })
+      //fps
+      if(JSON.parse(localStorage.getItem("SettingData")).ShowFps){
+        FpsCounter()
+      }
+      pen.fillStyle = "black"
+      pen.font= "20px Arial"
+      pen.fillText("generation:"+generation,box.width/2,15)
+      pen.fillText("Highest Score Achieved:"+TotalScore,box.width/2,35)
+      pen.fillText("Achieved in generation:"+HighestGen,box.width/2,55)
+      pen.fillText("Score of this generation:"+score,box.width/2,75)
+      if(GameRecentlySaved){
+        pen.fillText("game saved",box.width/2,95)
+      }
+      cycles = GenSpeed.draw()
+      population = RunnerCount.draw()
+      CubeSize = CubeSizes.draw()
+      Gravity = Grav.draw()
+      ButtonInteraction(pos,buttons,false)
+      requestAnimationFrame(GameLoop)
+    }
+    GameLoop()
+</script>
