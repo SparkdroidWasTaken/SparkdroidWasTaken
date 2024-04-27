@@ -1,0 +1,201 @@
+<title>Snake</title>
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+<style>
+    body{
+    margin:0;
+    overflow: hidden;
+    }
+</style>
+<script>
+    //basics
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    pen = box.getContext("2d")
+    pen.fillStyle = "rgba(0,0,0,1)"
+    pen.fillRect(0,0,box.width,box.height)
+    //strips for grid
+    let stripsV = Math.round(box.width/20)
+    let stripsH = Math.round(box.height/20)
+    //amount of food that spawns
+    let foodAmt = 1
+    //our snake
+    class snake{
+        constructor(){
+            this.x = Math.floor((Math.random() * box.width)/20)*20
+            this.y = Math.floor((Math.random() * box.height)/20)*20
+            this.width = 19
+            this.height = 19
+            this.color = "#03C04A"
+            this.speed = {
+                x:20,
+                y:0
+            }
+            this.segments = [
+                {x:this.x, y: this.y, Sx: this.speed.x, Sy: this.speed.y,Tx:this.speed.x,Ty:this.speed.y,head:true},
+                 {x:this.x-20, y:this.y, Sx: this.speed.x, Sy: this.speed.y,Tx:0,Ty:0,head:false},
+                {x:this.x-40, y:this.y, Sx: this.speed.x, Sy: this.speed.y,Tx:0,Ty:0,head:false},
+            ]
+        }
+        draw(){
+            for(let i = 0; i < this.segments.length; i++){
+                pen.fillStyle = this.color
+                pen.fillRect(this.segments[i].x,this.segments[i].y,this.width,this.height)
+            }
+        }
+        update(){
+            this.segments[0].Sx = this.speed.x
+            this.segments[0].Sy = this.speed.y
+            for(let i = 0; i < this.segments.length; i++){
+                this.segments[i].x += this.segments[i].Sx
+                this.segments[i].y += this.segments[i].Sy
+                this.segments[i].Tx = this.segments[i].Sx
+                this.segments[i].Ty = this.segments[i].Sy
+                if(i != 0){
+                    this.segments[i].Sx = this.segments[i-1].Tx
+                    this.segments[i].Sy = this.segments[i-1].Ty
+                }
+            }
+        }
+        turn(direction){
+            switch (direction) {
+                case "up":
+                if(this.speed.y == 20){
+                        //nothing happens
+                    }else{
+                        this.speed.x = 0
+                        this.speed.y = -20
+                    }
+                    break;
+                case "down":
+                if(this.speed.y == -20){
+                        //nothing happens
+                    }else{
+                        this.speed.x = 0
+                        this.speed.y = 20
+                    }
+                    break;
+                case "left":
+                    if(this.speed.x == 20){
+                        //nothing happens
+                    }else{
+                        this.speed.x = -20
+                        this.speed.y = 0
+                    }
+                    break;
+                case "right":
+                if(this.speed.x == -20){
+                        //nothing happens
+                    }else{
+                        this.speed.x = 20
+                        this.speed.y = 0
+                    }
+                    break;
+            }
+        }
+    }
+    let Snake = new snake()
+    document.addEventListener("keydown",(e)=>{
+        switch (e.keyCode) {
+            case 37:
+                Snake.turn("left")
+                break;
+            case 38:
+                Snake.turn("up")
+                break;
+            case 39:
+                Snake.turn("right")
+                break;
+            case 40:
+                Snake.turn("down")
+                break;
+        }
+    })
+    //food
+    class Food{
+        constructor(){
+            this.x = Math.floor((Math.random() * (box.width-20))/20)*20
+            this.y = Math.floor((Math.random() * (box.height-20))/20)*20
+            this.width = 20
+            this.height = 20
+            this.color = "red"
+            this.IsEaten = false
+        }
+        draw(){
+            pen.fillStyle = this.color
+            pen.fillRect(this.x,this.y,this.width,this.height)
+        }
+    }
+    let foods = []
+    for(let i = 0; i < foodAmt; i++){
+        foods.push(new Food)
+    }
+    //restart function
+    function Restart(){
+        //restart snake
+        Snake.x = Math.floor((Math.random() * box.width)/20)*20
+        Snake.y = Math.floor((Math.random() * box.height)/20)*20
+        Snake.speed = {x:20,y:0}
+        Snake.segments = [
+            {x:Snake.x, y: Snake.y, Sx: Snake.speed.x, Sy: Snake.speed.y,Tx:Snake.speed.x,Ty:Snake.speed.y,head:true},
+            {x:Snake.x-20, y:Snake.y, Sx: Snake.speed.x, Sy: Snake.speed.y,Tx:0,Ty:0,head:false},
+            {x:Snake.x-40, y:Snake.y, Sx: Snake.speed.x, Sy: Snake.speed.y,Tx:0,Ty:0,head:false}]
+        //reset the food
+        foods = []
+        for(let i = 0; i < foodAmt; i++){
+            foods.push(new Food)
+        }
+    }
+    //game loop
+    function loop(){
+        //drawing
+        pen.fillStyle = "white"
+        pen.fillRect(0,0,box.width,box.height)
+        //grid because idk wtf i'm doing
+        for(let i = 0; i < stripsV; i++){
+            for(let j = 0; j < stripsH; j++){
+                pen.fillStyle = "black"
+                pen.fillRect(i*20+(0.1),j*20+(0.1),20,20)
+            }
+        }
+        //food
+        foods.forEach(food=>{
+            food.draw()
+        })
+        //snake
+        Snake.draw()
+        //updating
+        //snake
+        Snake.update()
+        //snake dies if it leaves boundary
+        if(Snake.segments[0].x < 0 || Snake.segments[0].x > box.width || Snake.segments[0].y < 0 || Snake.segments[0].y > box.height){
+            Restart()
+        }
+        //body no touching
+        for (Segment1 of Snake.segments){
+            for(Segment2 of Snake.segments){
+                if(Segment1 != Segment2 && Segment1.x == Segment2.x && Segment1.y == Segment2.y && Segment1.head && !Segment2.head){
+                    Restart()
+                }
+            }
+        }
+        //food
+        foods.forEach(food=>{
+            //collision detection is so easy because grid
+            for(let i = 0; i < Snake.segments.length; i++){
+                if(Snake.segments[i].x == food.x && Snake.segments[i].y == food.y && Snake.segments[i].head){
+                    food.IsEaten = true
+                }
+            }
+        })
+        foods.forEach((food,i)=>{
+            if(food.IsEaten){
+                foods.splice(i,1)
+                foods.push(new Food)
+                Snake.segments.push({x:Snake.segments[Snake.segments.length-1].x-Snake.speed.x, y:Snake.segments[Snake.segments.length-1].y-Snake.speed.y, Sx: Snake.speed.x, Sy: Snake.speed.y,Tx:0,Ty:0,head:false})
+            }
+        })
+    }
+    //actually start game
+    GameLoop = setInterval(loop, 100)
+</script>
