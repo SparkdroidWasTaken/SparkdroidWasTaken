@@ -1,4 +1,4 @@
-### Projects Overview
+# Projects Overview
 
 Below is a selection of projects I have developed, showcasing my skills in web development, game design, and artificial intelligence.
 
