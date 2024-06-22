@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tic Tac Toe</title>
+        <style>
+            body{
+                margin:0;
+                overflow: hidden;
+                background-color:aqua;
+            }
+            #title{
+                color: blueviolet;
+            }
+            #box{
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: -1;
+            }
+            #screen{
+                background-color:rgb(255, 0, 208);
+                z-index: 1;
+                position: relative;
+                top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="box"></canvas>
+        <canvas id ="screen" width="500" height="500" style="border:0px solid black"></canvas>
+        <script>
+            function GenerateRandomColor(){
+                return `rgba(${Math.floor(Math.random() * (255 - 0 + 1) + 0)},${Math.floor(Math.random() * (255 - 0 + 1) + 0)},${Math.floor(Math.random() * (255 - 0 + 1) + 0)},1)`
+            }
+            //box stuff
+            var box = document.getElementById("box")
+            box.width = innerWidth
+            box.height = innerHeight
+            pen = box.getContext("2d")
+            pen.fillStyle = "rgb(0,255,255)"
+            pen.fillRect(0,0,box.width,box.height)
+            let BoxMiddle = {
+                x: box.width/2,
+                y:box.height/2
+            }
+            //screen stuff
+            var screen = document.getElementById("screen")
+            screen.width = 500
+            screen.height = 500
+            screen.style.top = `${BoxMiddle.y-(screen.height/2)}px`
+            screen.style.left = `${BoxMiddle.x-(screen.width/2)}px`
+            pen1 = screen.getContext("2d")
+            pen1.fillStyle = "rgb(255,255,255)"
+            pen1.fillRect(0,0,screen.width, screen.height)
+            let SampleText =  "Player 1's turn"
+            //background
+            function background(){
+                //background Color
+                box.width = innerWidth
+                box.height = innerHeight
+                BoxMiddle = {
+                    x: box.width/2,
+                    y:box.height/2
+                }
+                pen.fillStyle = "rgb(0,255,255)"
+                pen.fillRect(0,0,box.width,box.height)
+                //title
+                pen.fillStyle = "black"
+                pen.font= "75px Arial";
+                pen.textAlign = "center"
+                pen.fillText("Tic Tac Toe",BoxMiddle.x,75)
+                //sample text
+                pen.fillStyle = "black"
+                pen.font= "75px Arial";
+                pen.textAlign = "center"
+                pen.fillText(SampleText,BoxMiddle.x,box.height-25)
+                //consistency
+                screen.style.top = `${BoxMiddle.y-(screen.height/2)}px`
+                screen.style.left = `${BoxMiddle.x-(screen.width/2)}px`
+                requestAnimationFrame(background)
+            }
+            //the grid
+            let gridGame = [
+                [0,0,0],
+                [0,0,0],
+                [0,0,0]
+            ]
+            //win lines
+            let WinLines = []
+            //gameTurn, Always changes after every turn
+            let GameTurn = "x"
+            document.getElementById("screen").addEventListener("click",e=>{DrawItem(e,GameTurn);})
+
+            //okay 0 represents an empty slot. o represents a naught and x is a cross.
+            function DrawItem(ev,item,x,y){
+                if(!ev){
+                    if(gridGame[y][x] == 0){
+                        gridGame[y][x] = item
+                    }
+                }else{
+                    let x = Math.floor((ev.offsetX)/(500/3))
+                    let y = Math.floor((ev.offsetY)/(500/3))
+                    if(gridGame[y][x] == 0){
+                        gridGame[y][x] = item
+                    }
+                }
+                CheckGameState()
+            }
+            //switch turns n stuff, check if winner too
+            var WinState = false
+            var Scores = {
+                    x:0,
+                    o:0
+                }
+            function CheckGameState(){
+                if(GameTurn == "x"){
+                    Scores.x++
+                    GameTurn = "o"
+                    SampleText = "Player 2's turn"
+                }else{
+                    Scores.o++
+                    GameTurn = "x"
+                    SampleText = "Player 1's turn"
+                }
+                //brute FORCE LETS GOOOOO
+                for(let j = 0; j < 2; j++){
+                    let Plr = "x"
+                    let WinText = "Player 1 Won"
+                    let WinColor = "blue"
+                    if (j == 0){
+                         Plr = "x"
+                         WinText = "Player 1 Won"
+                         WinColor = "blue"
+                    }else{
+                        Plr = "o"
+                         WinText = "Player 2 Won"
+                         WinColor = "red"
+                    }
+                    //vertical win
+                    for(let i = 0; i < gridGame.length; i++){
+                        if(gridGame[0][i] == Plr && gridGame[1][i] == Plr && gridGame[2][i] == Plr){
+                            SampleText = WinText
+                            WinState = true
+                            WinLines.push(
+                                {
+                                    p1:{
+                                        x:(i*(screen.width/3))+((screen.width/3))/2,
+                                        y:(screen.height/3)/2
+                                    },
+                                    p2:{
+                                        x:(i*(screen.width/3))+((screen.width/3))/2,
+                                        y:(2*(screen.height/3))+(screen.height/3)/2
+                                    },
+                                    color:WinColor
+                                }
+                            )
+                        }
+                    }
+                    //horizontal win
+                    for(let i = 0; i < gridGame.length; i++){
+                        if(gridGame[i][0] == Plr && gridGame[i][1] == Plr && gridGame[i][2] == Plr){
+                            SampleText = WinText
+                            WinState = true
+                            WinLines.push(
+                                {
+                                    p1:{
+                                        x:((screen.width/3))/2,
+                                        y:(i*(screen.height/3))+(screen.height/3)/2
+                                    },
+                                    p2:{
+                                        x:(2*(screen.width/3))+((screen.width/3))/2,
+                                        y:(i*(screen.height/3))+(screen.height/3)/2
+                                    },
+                                    color:WinColor
+                                }
+                            )
+                        }
+                    }
+                    //diagonal (a lot more brute forcey)
+                    if(gridGame[0][0] == Plr && gridGame[1][1] == Plr && gridGame[2][2] == Plr){
+                        SampleText = WinText
+                        WinState = true
+                        WinLines.push(
+                                {
+                                    p1:{
+                                        x:((screen.width/3))/2,
+                                        y:(screen.height/3)/2
+                                    },
+                                    p2:{
+                                        x:(2*(screen.width/3))+((screen.width/3))/2,
+                                        y:(2*(screen.height/3))+(screen.height/3)/2
+                                    },
+                                    color:WinColor
+                                }
+                            )
+                    }
+                    if(gridGame[0][2] == Plr && gridGame[1][1] == Plr && gridGame[2][0] == Plr){
+                        SampleText = WinText
+                        WinState = true
+                        WinLines.push(
+                                {
+                                    p1:{
+                                        x:(2*(screen.width/3))+((screen.width/3))/2,
+                                        y:(screen.height/3)/2
+                                    },
+                                    p2:{
+                                        x:((screen.width/3))/2,
+                                        y:(2*(screen.height/3))+(screen.height/3)/2
+                                    },
+                                    color:WinColor
+                                }
+                            )
+                    }
+                }
+                //check if the grid is full
+                if(Scores.x + Scores.o == 9 && WinState == false){
+                    SampleText = "Draw, no one won"
+                }
+            }
+            function GenerateRandomMoves(){
+                let x =  Math.floor(Math.random() * 3)
+                let y =  Math.floor(Math.random() * 3)
+                if(gridGame[y][x] == 0){
+                    DrawItem(false,GameTurn,x,y)
+                }else{
+                    GenerateRandomMoves()
+                }
+            }
+            //the grid function aka the game
+            function Grid(){
+                //check if it's AI's turn
+                if(GameTurn == "o" && !(Scores.x + Scores.o == 9)){
+                    GenerateRandomMoves()
+                }
+                //grid colour
+                pen1.fillStyle = "rgb(0,0,0)"
+                pen1.fillRect(0,0,screen.width, screen.height)
+                //now we draw the grid
+                for(let i = 0; i < 3; i++){
+                    for(let j = 0; j < 3; j++){
+                        pen1.fillStyle = "rgb(0,255,255)"
+                        if(i == 2 && j == 2){
+                            pen1.fillRect(i*(screen.width/3),j*(screen.height/3),(screen.width/3),(screen.height/3))
+                        }else if(i == 2){
+                            pen1.fillRect(i*(screen.width/3),j*(screen.height/3),(screen.width/3),(screen.height/3)-1)
+                        }else if(j == 2){
+                            pen1.fillRect(i*(screen.width/3),j*(screen.height/3),(screen.width/3)-1,(screen.height/3))
+                        }else{
+                            pen1.fillRect(i*(screen.width/3),j*(screen.height/3),(screen.width/3)-1,(screen.height/3)-1)
+                        }
+                    }
+                }
+                //draw the stuff on the grid
+                for(i = 0; i < gridGame.length; i++){
+                    for(j = 0; j < gridGame[i].length; j++){
+                        if(gridGame[j][i] == "o"){
+                            pen1.beginPath()
+                            pen1.strokeStyle = "red"
+                            pen1.lineWidth = 5
+                            pen1.arc((i*(screen.width/3))+((screen.width/3))/2,(j*(screen.height/3))+(screen.height/3)/2,50,0,2*Math.PI)
+                            pen1.stroke()
+                        }else if(gridGame[j][i] == "x"){
+                            pen1.beginPath()
+                            pen1.strokeStyle = "blue"
+                            pen1.lineWidth = 5
+                            pen1.moveTo(i*(screen.width/3)+20,j*(screen.height/3)+20)
+                            pen1.lineTo(i*(screen.width/3)+((screen.width/3))-20,j*(screen.height/3)+(screen.height/3)-20)
+                            pen1.moveTo(i*(screen.width/3)+((screen.width/3))-20,j*(screen.height/3)+20)
+                            pen1.lineTo(i*(screen.width/3)+20,j*(screen.height/3)+(screen.height/3)-20)
+                            pen1.stroke()
+                        }
+                    }
+                }
+                //WinLines
+                WinLines.forEach(line=>{
+                    pen1.beginPath()
+                    pen1.strokeStyle = line.color
+                    pen1.lineWidth = 50
+                    pen1.lineCap = "round"
+                    pen1.moveTo(line.p1.x,line.p1.y)
+                    pen1.lineTo(line.p2.x,line.p2.y)
+                    pen1.stroke()
+                })
+                requestAnimationFrame(Grid)
+            }
+            Grid()
+            background()
+        </script>
+    </body>
+</html>
