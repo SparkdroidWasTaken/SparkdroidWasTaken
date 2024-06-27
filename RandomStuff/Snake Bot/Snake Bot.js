@@ -11,9 +11,6 @@
     let stripsH = Math.round(box.height/20)
     //death count
     let DeathCount = 0
-    function GenerateRandomColor(){
-        return `rgba(${Math.floor(Math.random() * (255 - 0 + 1) + 0)},${Math.floor(Math.random() * (255 - 0 + 1) + 0)},${Math.floor(Math.random() * (255 - 0 + 1) + 0)},1)`
-    }
     //HAMILTONNN
     class snake{
         constructor(){
