@@ -27,7 +27,7 @@ Below is a selection of projects I have developed, showcasing my skills in web d
 - **Technologies Used**: HTML5 Canvas, JavaScript
 - **Key Features**: Basic AI opponent, interactive user interface.
 
-### 6. Snake Bot
+#### 6. Snake Bot
 - **Description**: Following the creation of my snake game, I decided to add a bot into the game that would follow a hamiltonian cycle continuously until the game was completed
 - **Technologies Used**: HTML5 Canvas, JavaScript
 - **Key Features**: Hamiltonian Cycle, Simple path finding algorithm.
