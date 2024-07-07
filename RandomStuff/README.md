@@ -18,7 +18,7 @@ Below is a selection of projects I have developed, showcasing my skills in web d
 - **Key Features**: Basic implementation of genetic algorithms, visualization of AI learning process.
 
 #### 4. Snake Game
-- **Description**: Recreated the classic snake game within four hours, without relying on any guides or tutorials. T
+- **Description**: Recreated the classic snake game within four hours, without relying on any guides or tutorials.
 - **Technologies Used**: HTML5 Canvas, JavaScript
 - **Key Features**: Classic gameplay mechanics, responsive design.
 
@@ -31,3 +31,8 @@ Below is a selection of projects I have developed, showcasing my skills in web d
 - **Description**: Following the creation of my snake game, I decided to add a bot into the game that would follow a hamiltonian cycle continuously until the game was completed
 - **Technologies Used**: HTML5 Canvas, JavaScript
 - **Key Features**: Hamiltonian Cycle, Simple path finding algorithm.
+
+### 7. Fractals
+- **Description**: Created a visual representation of fractals, including a Julia set where the parameter z<sub>0</sub> is determined by the mouse pointer's position. Also developed a Mandelbrot set in high detail.
+- **Technologies Used**: HTML5 Canvas, JavaScript
+- **Key Features**: Interactive Julia set manipulation via mouse pointer, detailed rendering of the Mandelbrot set.
