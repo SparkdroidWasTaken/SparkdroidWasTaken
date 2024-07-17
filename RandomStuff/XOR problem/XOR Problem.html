@@ -1,0 +1,64 @@
+<title>XOR problem</title>
+<script src="NeuralNetwork.js"></script>
+<canvas id="box" width="500" height="500" style="border:0px solid black">
+    </canvas>
+    <style>
+    body{
+    margin:0;
+    overflow: hidden;
+    background-color: aqua;
+    }
+    </style>
+    <script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    pen = box.getContext("2d")
+    pen.fillStyle = "rgb(0,0,0)"
+    pen.fillRect(0,0,box.width,box.height)
+    let res = 10
+    let cols = box.width/res
+    let rows = box.height/res
+    let NN = new NeuralNetwork(2,15,1,0.1)
+    let data = [
+        {
+            inputs: [0,0],
+            outputs:[0]
+        },
+        {
+            inputs: [0,1],
+            outputs:[1]
+        },
+        {
+            inputs: [1,0],
+            outputs:[1]
+        },
+        {
+            inputs: [1,1],
+            outputs:[0]
+        }
+    ]
+    //train
+    function Train(){
+        for(let z = 0; z < 1000; z++){
+            let x = Math.floor(Math.random() * data.length)
+            NeuralNetwork.train(NN,data[x].inputs,data[x].outputs)
+        }
+    }
+    function loop(){
+        Train()
+        for(let i = 0; i < cols; i++){
+            for(let j = 0; j < rows; j++){
+                let x1 = i/cols
+                let x2 = j/rows
+                let inputs = [x1,x2]
+                let y = NeuralNetwork.FeedForward(NN,inputs)
+                let brightness = y[0] *255
+                pen.fillStyle = `rgb(${brightness},${brightness},${brightness})`
+                pen.fillRect(i*res,j*res,res,res)
+            }
+        }
+        requestAnimationFrame(loop)
+    }
+    loop()
+</script>
