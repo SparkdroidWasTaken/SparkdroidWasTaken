@@ -2,7 +2,7 @@
 
 ###
 
-<p align="left">My name is Darren and I'm a student from Manchester aspiring to be a software developer</p>
+<p align="left">My name is Darren and I'm a student from the University of Manchester studying a bachelor's degree in Computer Science and Mathematics</p>
 
 ###
 
