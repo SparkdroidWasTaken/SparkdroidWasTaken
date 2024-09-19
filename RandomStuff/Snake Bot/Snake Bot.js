@@ -1,7 +1,7 @@
     //basics
     const box = document.getElementById("box")
-    box.width = 1024
-    box.height = 486
+    box.width = 1020
+    box.height = 480
     pen = box.getContext("2d")
     pen.fillStyle = "rgba(0,0,0,1)"
     pen.fillRect(0,0,box.width,box.height)
