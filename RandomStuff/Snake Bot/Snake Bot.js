@@ -409,7 +409,7 @@
         //snake
        Snake.update()
        //calculate land covered
-       document.getElementById("LandCovered").innerText =  Math.round((Snake.segments.length/(stripsH*stripsV))*100)
+       document.getElementById("LandCovered").innerText =  Math.floor((Snake.segments.length/(stripsH*stripsV))*100)
         //food
         foods.forEach(food=>{
             food.update()
