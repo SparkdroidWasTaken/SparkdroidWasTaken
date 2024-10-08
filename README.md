@@ -2,7 +2,7 @@
 
 ###
 
-<p align="left">My name is Darren and I'm a student from the University of Manchester studying a bachelor's degree in Computer Science and Mathematics</p>
+<p align="left">My name is Darren and I'm a student from the University of Manchester studying a bachelor's degree in Computer Science and Mathematics with an interest in machine learning and computer graphics</p>
 
 ###
 
@@ -10,7 +10,7 @@
 
 ###
 
-<p align="left">✨ Coding since 2020<br>📚 I'm currently learning Java<br>🎯 Goals: To land a job in the tech industry and gather as much knowledge as possible<br></p>
+<p align="left">✨ Coding since 2020<br>📚 I'm currently learning Java<br>🎯 Goals: To land a job in the tech industry, specifically machine learning<br></p>
 
 ###
 
