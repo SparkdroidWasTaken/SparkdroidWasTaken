@@ -10,7 +10,7 @@
 
 ###
 
-<p align="left">✨ Coding since 2020<br>📚 I'm currently learning Java<br>🎯 Goals: To land a job in the tech industry, specifically machine learning<br></p>
+<p align="left">✨ Coding since 2020<br>📚 I'm currently learning Java and Deep Q Learning<br>🎯 Goals: To land a job in the tech industry, specifically machine learning<br></p>
 
 ###
 
