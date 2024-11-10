@@ -1,0 +1,196 @@
+<title>Hackathon Project</title>
+<canvas id="box" width="500" height="500" style="border:0px solid black">
+</canvas>
+<script src="Utils.js"></script>
+<style>
+body{
+margin:0;
+overflow: hidden;
+}
+</style>
+<script>
+    var box = document.getElementById("box")
+    box.width = innerWidth
+    box.height = innerHeight
+    pen = box.getContext("2d")
+    pen.fillStyle = "rgb(255,255,255)"
+    pen.fillRect(0,0,box.width,box.height)
+    let fov = 5
+    let ShowMap = false
+    let Player = new player()
+    let items = []
+    items.push(new item("Border"))
+    for(let i = 0; i < 0; i++){
+        items.push(new item)
+    }
+    items.push(new FunnyFace)
+    items.push(new Portal)
+    //controls
+    document.addEventListener("keydown",e=>{
+         switch (e.keyCode) {
+            case 37:
+                Player.left = true
+                break;
+            case 39:
+                Player.right = true
+                break;
+            case 38:
+                Player.forward = true
+                break;
+            case 40:
+                Player.backward = true
+                break;
+            case 81:
+                ShowMap = true
+                break
+            case 49:
+            LoadHistory.LoadIt = false
+                break
+        }
+    })
+    document.addEventListener("keyup",e=>{
+        if(e.keyCode == 38){
+            Player.acc = 0
+        }
+         switch (e.keyCode) {
+            case 37:
+                Player.left = false
+                break;
+            case 39:
+                Player.right = false
+                break;
+            case 38:
+                Player.forward = false
+                break;
+            case 40:
+                Player.backward = false
+                break;
+            case 81:
+                ShowMap = false
+                break
+        }
+    })
+    //this is so we can press the pillars
+    document.addEventListener("click",e=>{
+        touchPillar(e.pageX,e.pageY)
+        TouchFace(e.pageX,e.pageY)
+    })
+    //are we running the first person function?
+    let RunningFirstPerson =  true
+    //text to appear at the top of the screen
+    let text = "Enter the Portal to teleport to a time period"
+    //funny easter egg thing
+    let time = 0
+    //First person view (3D)
+    function FirstPersonView(){
+        //updating
+        time++
+        //if the time takes too long
+        switch (time) {
+            case 2000:
+                if(FaceTalkInfo != ""){
+                    text = "Stop talking to that faceless thing and go through the portal"
+                }else{
+                    text = "cmon now, go through the portal"
+                }
+                break;
+            case 4000:
+            if(FaceTalkInfo != ""){
+                    text = "I should have removed that faceless guy ages ago"
+                }else{
+                    text = "There's nothing else here other than that portal"
+                }
+                break;
+            case 6000:
+                text = "Portal. Go. Now."
+                break;
+            case 8000:
+                text = "Final warning. Go to the portal"
+                break;
+        }
+        if(time > 10000){
+            Player.x += (items[items.length-1].x - Player.x)*0.07
+            Player.y += (items[items.length-1].y - Player.y)*0.07
+            text = "That's fine, i'll just make you"
+        }
+        //player
+        Player.update()
+        //items
+        for(let i = 0; i < items.length; i++){
+            items[i].update(Player)
+            if(PolygonalIntersection(Player,items[i])){
+                if(items[i].type == "Portal"){
+                    text = "Travelling..."
+                    RunningFirstPerson = false
+                    items.pop()
+                    items.pop()
+                    items.push(new Portal)
+                    FaceTalkInfo = ""
+                    items[items.length-1].x = 20
+                    items[items.length-1].y = box.height/2
+                    items.push(new FunnyFace)
+                }
+            }
+        }
+        //drawing
+        pen.globalAlpha = 1
+        //background (sky)
+        pen.fillStyle = "#00FFFF"
+        pen.fillRect(0,0,box.width,box.height)
+        //floor
+        pen.fillStyle = "#03C04A"
+        pen.fillRect(0,(box.height/2),box.width,box.height)
+        //walls n stuff
+        pen.save()
+        pen.translate(0,(box.height/2))
+        for(let i = 0; i < Player.rays.length; i++){
+            let light = 3*((box.height/Player.rays[i].dist))+40
+            if(light >= 80){
+                light = 80
+            }
+            if(Player.rays[i].target.color != null){
+                pen.fillStyle = `hsl(${Player.rays[i].target.color}, 100%, ${light}%)`
+            }else{
+                pen.fillStyle = "white"
+            }
+            switch (Player.rays[i].target.type) {
+                case "Portal":
+                    pen.fillRect(i*((box.width)/Player.rays.length),-20*(((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist),(box.width/(Player.rays.length))+1,((((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist)*20)*2)
+                    break;
+                case "TextPillar":
+                    pen.fillRect(i*((box.width)/Player.rays.length),-75*(((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist),(box.width/(Player.rays.length))+1,((((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist)*60)*2)
+                    break
+                case "Face":
+                    //skin colour???
+                    pen.fillStyle = "#FF00FF"
+                    pen.fillRect(i*((box.width)/Player.rays.length),-8*(((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist),(box.width/(Player.rays.length))+1,((((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist)*8)*2)
+                    //I HAVE NO IDEA BUT LETS TRY :fire:
+                        pen.fillStyle = "black"
+                        pen.fillRect(i*((box.width)/Player.rays.length),3*(((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist),(box.width/(Player.rays.length))+1,((((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist)*3)*2)
+                    break
+
+                default:
+                    pen.fillRect(i*((box.width)/Player.rays.length),-2*(((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist),(box.width/(Player.rays.length))+1,((((2*box.width/Player.rays.length)*box.height)/Player.rays[i].Visdist)*5)*2)
+            }
+        }
+        pen.restore()
+        if(ShowMap){
+            TopDownView()
+        }
+        ShowText(text)
+        pen.fillStyle = "#FF00FF"
+        pen.font = "30px Comic Sans MS"
+        pen.textAlign = "center"
+        pen.fillText(FaceTalkInfo,box.width/2,100)
+        DisplayTextBottom("Press and Hold Q to open map")
+    }
+    function Loop(){
+        if(RunningFirstPerson){
+            FirstPersonView()
+        }else{
+            TimeTravel()
+        }
+        requestAnimationFrame(Loop)
+    }
+    Loop()
+</script>
