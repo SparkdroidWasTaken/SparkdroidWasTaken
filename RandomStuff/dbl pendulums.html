@@ -1,0 +1,124 @@
+<canvas id="box" width="500" height="500" style="border:0px solid black"></canvas>
+</canvas>
+<style>
+body{
+margin:0;
+overflow: hidden;
+}
+</style>
+<script>
+  var box = document.getElementById("box")
+  box.width = innerWidth
+  box.height = innerHeight
+  pen = box.getContext("2d")
+  pen.fillStyle = "rgb(0,0,0)"
+  pen.fillRect(0,0,box.width,box.height)
+  let g = 1
+  class DoublePendulum {
+        constructor(color,angle){
+            //Mass of balls
+            this.m1 = 1
+            this.m2 = 1
+            //the colour
+            this.color = color || "white"
+            //Radius of balls
+            this.rad = 25
+            // Length of rods
+            this.L1 = 150
+            this.L2 = 150
+            // Angles of rods
+            this.ang1 = angle || -Math.PI/2
+            this.ang2 = angle || -Math.PI/2
+            //the velocity of these angles
+            this.vel1 = 0
+            this.vel2 = 0
+            //accerlation
+            this.acc1 = 0
+            this.acc2 = 0
+            // X and Y positions of pendulums
+            this.updatePositions()
+        }
+
+        updatePositions(){
+            this.pos1 = {
+                x: (box.width / 2) + this.L1 * Math.sin(this.ang1),
+                y: (box.height / 2) + this.L1 * Math.cos(this.ang1),
+            }
+            this.pos2 = {
+                x: this.pos1.x + this.L2 * Math.sin(this.ang2),
+                y: this.pos1.y + this.L2 * Math.cos(this.ang2),
+            }
+        }
+
+        draw(){
+            // Draw rods
+            pen.fillStyle = this.color
+            pen.strokeStyle = this.color
+            pen.beginPath()
+            pen.moveTo(box.width / 2, box.height / 2)
+            pen.lineTo(this.pos1.x, this.pos1.y)
+            pen.stroke()
+
+            pen.beginPath()
+            pen.moveTo(this.pos1.x, this.pos1.y)
+            pen.lineTo(this.pos2.x, this.pos2.y)
+            pen.stroke()
+
+            //Draw the BALLS
+            pen.beginPath()
+            pen.arc(this.pos1.x, this.pos1.y, this.rad/2, 0,2*Math.PI)
+            pen.fill()
+
+            pen.beginPath()
+            pen.arc(this.pos2.x, this.pos2.y, this.rad/2, 0,2*Math.PI)
+            pen.fill()
+        }
+        //the physics gets its own function
+        physics(){
+        let sin = Math.sin;
+        let cos = Math.cos;
+        let theta1 = this.ang1;
+        let theta2 = this.ang2;
+        let m1 = this.m1;
+        let m2 = this.m2;
+        let omega1 = this.vel1;
+        let omega2 = this.vel2;
+        let L1 = this.L1;
+        let L2 = this.L2;
+        this.acc1 = (-g * (2 * m1 + m2) * sin(theta1) - m2 * g * sin(theta1 - 2 * theta2)- 2 * sin(theta1 - theta2) * m2 * (omega2 ** 2 * L2 + omega1 ** 2 * L1 * cos(theta1 - theta2)))/(L1 * (2 * m1 + m2 - m2 * cos(2 * theta1 - 2 * theta2)))
+        this.acc2 = 2 * sin(theta1 - theta2) * (omega1 ** 2 * L1 * (m1 + m2)+ g * (m1 + m2) * cos(theta1)+ omega2 ** 2 * L2 * m2 * cos(theta1 - theta2))/(L2 * (2 * m1 + m2 - m2 * cos(2 * theta1 - 2 * theta2)))
+        }
+        update(){
+            //Update positions of pendulums
+            this.physics()
+            this.vel1 += this.acc1
+            this.vel2 += this.acc2
+ /*            this.vel1 *=0.99999999999
+            this.vel2 *=0.99999999999 */
+            this.ang1 += this.vel1
+            this.ang2 += this.vel2
+            this.updatePositions()
+        }
+    }
+    let pendulums = []
+    let pednulumCount =  10
+    for(let i = 0; i < pednulumCount; i++){
+        pendulums.push(new DoublePendulum(`rgb(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)})`,(-Math.PI/2)-(i/100000)))
+    }
+
+    function loop(){
+        //drawing
+        pen.fillStyle = "rgb(0,0,0)"
+        pen.fillRect(0,0,box.width,box.height)
+        for(let i = 0; i < pendulums.length; i++){
+            pendulums[i].draw()
+        }
+        //updating
+        for(let i = 0; i < pendulums.length; i++){
+            pendulums[i].update()
+        }
+        requestAnimationFrame(loop)
+    }
+
+    loop()
+</script>
