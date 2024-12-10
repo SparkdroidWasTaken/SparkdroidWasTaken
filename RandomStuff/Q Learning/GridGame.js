@@ -178,8 +178,10 @@
             if(player.x == goals[i].x && player.y == goals[i].y){
                 player.score += goals[i].score
                 if(goals[i].score > 0){
+                    //make him happi
                     player.display = "^-^"
                 }else{
+                    //stone cold nonchalant expression
                     player.display = "o_o"
                 }
                 //player.Respawn()
