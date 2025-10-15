@@ -1,45 +1,60 @@
-<h1 align="left">Hello! Nice to meet you</h1>
+<h1 align="left">Geometric Deep Learning & Topological AI Research</h1>
 
 ###
 
-<p align="left">My name is Darren and I'm a student from the University of Manchester studying a bachelor's degree in Computer Science and Mathematics with an interest in machine learning and computer graphics</p>
+<p align="left">
+  Computer Science & Mathematics Student @ University of Manchester | 
+  Research Interests: Geometric Deep Learning, Topological Data Analysis, 
+  Manifold Learning, and Deep Reinforcement Learning
+</p>
 
 ###
 
-<h2 align="left">About me</h2>
-
-###
-
-<p align="left">✨ Coding since 2020<br>📚 I'm currently learning Java and Deep Q Learning<br>🎯 Goals: To land a job in the tech industry, specifically machine learning<br></p>
-
-###
-
-<h2 align="left">I code with</h2>
+<h2 align="left">Research & Projects</h2>
 
 ###
 
 <div align="left">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="40" alt="javascript logo"  />
-  <img width="12" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/6910f0503efdd315c8f9b858234310c06e04d9c0/icons/python/python-original.svg" height="40" alt="Python logo"  />
-  <img width="12" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/6910f0503efdd315c8f9b858234310c06e04d9c0/icons/html5/html5-original.svg" height="40" alt="Html logo"  />
-  <img width="12" />
-   <img src="https://raw.githubusercontent.com/devicons/devicon/6910f0503efdd315c8f9b858234310c06e04d9c0/icons/css3/css3-original.svg" height="40" alt="css logo"  />
-  <img width="12" />
-  <!--<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" height="40" alt="typescript logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" height="40" alt="react logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" height="40" alt="nextjs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/storybook/storybook-original.svg" height="40" alt="storybook logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" height="40" alt="nodejs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-plain.svg" height="40" alt="nestjs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jest/jest-plain.svg" height="40" alt="jest logo"  />--!>
+  🔬 <strong>Geometric Regularization in Deep Q-Networks</strong> - JavaScript/Python<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;Implementing Lipschitz regularization and topological analysis for RL stability<br/><br/>
+  
+  🧠 <strong>Neural Networks from Scratch</strong> - Python/NumPy<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;3-layer network (784-1024-10) achieving 95% on MNIST with manual backprop<br/><br/>
+  
+  📈 <strong>Custom Linear Regression</strong> - Python<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;Gradient descent with momentum matching scikit-learn performance<br/>
 </div>
 
 ###
+
+<h2 align="left">Technical Stack</h2>
+
+###
+
+<div align="left">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" height="40" alt="Python" />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="40" alt="JavaScript" />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/processing/processing-original.svg" height="40" alt="Processing" />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg" height="40" alt="NumPy" />
+  <img width="12" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" height="40" alt="PyTorch" />
+  <img width="12" />
+</div>
+
+###
+
+<h2 align="left">Connect</h2>
+
+###
+
+<div align="left">
+  <a href="https://linkedin.com/in/Darren-Bouleke" target="_blank">
+    <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/linkedin/default.svg" width="52" height="40" alt="linkedin logo"  />
+  </a>
+  <a href="mailto:dkroahd@gmail.com" target="_blank">
+    <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/gmail/default.svg" width="52" height="40" alt="gmail logo"  />
+  </a>
+</div>
