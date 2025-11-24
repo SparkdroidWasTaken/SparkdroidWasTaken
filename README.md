@@ -16,7 +16,7 @@
 
 <div align="left">
   🔬 <strong>Geometric Regularization in Deep Q-Networks</strong> - JavaScript/Python<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;Implementing Lipschitz regularization and topological analysis for RL stability<br/><br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;Investigating Geometric Regularization and Topological Analysis in Deep Reinforcement Learning<br/><br/>
   
   🧠 <strong>Neural Networks from Scratch</strong> - Python/NumPy<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;3-layer network (784-1024-10) achieving 95% on MNIST with manual backprop<br/><br/>
