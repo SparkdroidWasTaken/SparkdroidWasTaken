@@ -28,9 +28,9 @@ Each activation function induces a dramatically different manifold geometry from
 
 | Side view | Top-down view | End-on (ring structure) |
 |:---:|:---:|:---:|
-| ![Identity manifold side](Images/identity_side.png) | ![Identity manifold top](Images/identity_top.png) | ![Identity manifold end](Images/identity_ring.png) |
+| ![Identity manifold side](Images/identity_side.png) | ![Identity manifold top](Images/identity_side_2.png) | ![Identity manifold end](Images/identity_ring.png) |
 
-The identity activation produces a large flat **slab** — high-reward states (green) concentrated in the centre, low-reward states (red) ringing the boundary. The end-on view reveals a hollow ring structure: the agent rarely visits the interior of representation space.
+The identity activation produces a large flat **slab**, high-reward states (green) concentrated in the centre, low-reward states (red) ringing the boundary. The end-on view reveals a hollow ring structure: the agent rarely visits the interior of representation space.
 
 ### Leaky ReLU
 
@@ -38,13 +38,13 @@ The identity activation produces a large flat **slab** — high-reward states (g
 |:---:|:---:|:---:|
 | ![LReLU manifold 1](Images/lrelu_1.png) | ![LReLU manifold 2](Images/lrelu_2.png) | ![LReLU manifold 3](Images/lrelu_3.png) |
 
-LReLU produces a **wedge or boomerang** shape — a sharp high-reward peak at the tip with a long low-reward tail. The nonlinearity introduces clear directional structure absent in the identity case.
+LReLU produces a **wedge or boomerang** shape, a sharp high-reward peak at the tip with a long low-reward tail. The nonlinearity introduces a clear directional structure that is absent in the identity case.
 
 ### Tanh
 
 ![Tanh manifold](Images/tanh.png)
 
-Tanh compresses the manifold into a tight **L-shaped hook** — the majority of states cluster near the origin with a sparse high-reward arm extending outward. The saturation of tanh aggressively collapses the representation volume.
+Tanh compresses the manifold into a tight **L-shaped hook**. The majority of states cluster near the origin with a sparse high-reward arm extending outward. The saturation of tanh aggressively collapses the representation volume.
 
 ### Sigmoid
 
@@ -52,7 +52,7 @@ Tanh compresses the manifold into a tight **L-shaped hook** — the majority of 
 |:---:|:---:|:---:|
 | ![Sigmoid manifold front](Images/sigmoid_front.png) | ![Sigmoid manifold side](Images/sigmoid_side.png) | ![Sigmoid manifold angled](Images/sigmoid_angled.png) |
 
-Sigmoid produces the most visually striking result: a smooth **teardrop or bullet** shape — compact, dense, with high-reward states concentrated at a sharp green tip.
+Sigmoid produces the most visually striking result: a smooth **teardrop or bullet** shape. Compact, dense, with high-reward states concentrated at a sharp green tip.
 
 ---
 
@@ -60,7 +60,7 @@ Sigmoid produces the most visually striking result: a smooth **teardrop or bulle
 
 ### 1. Steering vectors reliably improve performance
 
-A single linear vector in 64-dimensional hidden space, computed as `h(goal) − h(initial)`, shifts average reward from **1.96 → ~2.70** across three of four steering variants — a ~38% improvement with zero retraining.
+A single linear vector in 64-dimensional hidden space, computed as `h(goal) − h(initial)`, shifts average reward from **1.96 → ~2.70** across three of four steering variants. A ~38% improvement with zero retraining.
 
 | Episode type | Avg Reward | Total Reward |
 |---|---|---|
@@ -82,7 +82,7 @@ Higher reward isn't "staying still" — it comes with measurably longer and more
 | Steered (Identity) | **10737** | **1640** | **1601** |
 | Steered (Tanh) | **10699** | **1686** | **1655** |
 
-The steered agent traces nearly **twice the arc length** per episode with ~50% more curvature — suggesting the policy traverses a larger and more geometrically complex region of representation space during successful control.
+The steered agent traces nearly **twice the arc length** per episode, with ~50% more curvature, suggesting the policy traverses a larger, more geometrically complex region of representation space during successful control.
 
 ### 3. Activation function choice dramatically reshapes manifold geometry
 
@@ -95,11 +95,11 @@ The same frozen weights, re-analysed through four different activation functions
 | Tanh | 472 ± 72 | 1285 ± 183 | 1347 ± 198 | ~2.72 |
 | Sigmoid | 57 ± 8 | 1145 ± 166 | 1157 ± 172 | ~20.2 |
 
-Arc length shrinks by **100×** from identity to sigmoid, but curvature stays roughly constant — meaning the sigmoid manifold packs the same geometric complexity into a far smaller region (high κ/arc). The activation function does not just rescale the manifold; it fundamentally changes its shape, as visible in the screenshots above.
+Arc length shrinks by **100×** from identity to sigmoid, but curvature stays roughly constant, meaning the sigmoid manifold packs the same geometric complexity into a far smaller region (high κ/arc). The activation function does not just rescale the manifold; it fundamentally changes its shape, as visible in the screenshots above.
 
 ### 4. Episode 31 is a universal geometric signature of failure
 
-Ep 31 is a near-immediate failure — the agent drops the pole almost instantly. Its geometry is unmistakable across every activation function:
+Ep 31 is a near-immediate failure; the agent drops the pole almost instantly. Its geometry is unmistakable across every activation function:
 
 | Activation | Arc | κ | τ |
 |---|---|---|---|
@@ -108,7 +108,7 @@ Ep 31 is a near-immediate failure — the agent drops the pole almost instantly.
 | Tanh | 5.6 | 71.5 | 30.0 |
 | Sigmoid | 0.6 | 57.4 | 28.4 |
 
-Near-zero arc, near-zero torsion — the agent barely moves in representation space before the episode ends. This acts as a **geometric signature of failure**, robust across all four activation interpretations. The consistency suggests this is a property of the trajectory itself rather than an artefact of the activation choice.
+Near-zero arc, near-zero torsion, the agent barely moves in representation space before the episode ends. This acts as a **geometric signature of failure**, robust across all four activation interpretations. The consistency suggests this is a property of the trajectory itself rather than an artefact of the activation choice.
 
 ---
 
