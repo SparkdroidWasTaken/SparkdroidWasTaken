@@ -28,7 +28,7 @@ Each activation function induces a dramatically different manifold geometry from
 
 | Side view | Top-down view | End-on (ring structure) |
 |:---:|:---:|:---:|
-| ![Identity manifold side](images/identity_side.png) | ![Identity manifold top](images/identity_top.png) | ![Identity manifold end](images/identity_ring.png) |
+| ![Identity manifold side](Images/identity_side.png) | ![Identity manifold top](Images/identity_top.png) | ![Identity manifold end](Images/identity_ring.png) |
 
 The identity activation produces a large flat **slab** — high-reward states (green) concentrated in the centre, low-reward states (red) ringing the boundary. The end-on view reveals a hollow ring structure: the agent rarely visits the interior of representation space.
 
@@ -36,13 +36,13 @@ The identity activation produces a large flat **slab** — high-reward states (g
 
 | Perspective 1 | Perspective 2 | Perspective 3 |
 |:---:|:---:|:---:|
-| ![LReLU manifold 1](images/lrelu_1.png) | ![LReLU manifold 2](images/lrelu_2.png) | ![LReLU manifold 3](images/lrelu_3.png) |
+| ![LReLU manifold 1](Images/lrelu_1.png) | ![LReLU manifold 2](Images/lrelu_2.png) | ![LReLU manifold 3](Images/lrelu_3.png) |
 
 LReLU produces a **wedge or boomerang** shape — a sharp high-reward peak at the tip with a long low-reward tail. The nonlinearity introduces clear directional structure absent in the identity case.
 
 ### Tanh
 
-![Tanh manifold](images/tanh.png)
+![Tanh manifold](Images/tanh.png)
 
 Tanh compresses the manifold into a tight **L-shaped hook** — the majority of states cluster near the origin with a sparse high-reward arm extending outward. The saturation of tanh aggressively collapses the representation volume.
 
@@ -50,7 +50,7 @@ Tanh compresses the manifold into a tight **L-shaped hook** — the majority of 
 
 | Front view | Side view | Angled |
 |:---:|:---:|:---:|
-| ![Sigmoid manifold front](images/sigmoid_front.png) | ![Sigmoid manifold side](images/sigmoid_side.png) | ![Sigmoid manifold angled](images/sigmoid_angled.png) |
+| ![Sigmoid manifold front](Images/sigmoid_front.png) | ![Sigmoid manifold side](Images/sigmoid_side.png) | ![Sigmoid manifold angled](Images/sigmoid_angled.png) |
 
 Sigmoid produces the most visually striking result: a smooth **teardrop or bullet** shape — compact, dense, with high-reward states concentrated at a sharp green tip.
 
