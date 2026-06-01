@@ -180,7 +180,7 @@ All Jacobians were computed with `torch.autograd.functional.jacobian`.
 | `EpisodeLrelu.json` | Steered episode — Leaky ReLU activation steering vector applied |
 | `EpisodeTanh.json` | Steered episode — Tanh activation steering vector applied |
 | `EpisodeSigmoid.json` | Steered episode — Sigmoid activation steering vector applied |
-| `ExperienceData_0.json` | 50,000-step replay buffer — each entry contains `state`, `action`, `reward`, `nextState`, `done`, Q-values, hidden activations, timestep, and episode index. Used for geometry analysis and training the visualiser. |
+| `ExperienceData_0.json` | 50,000-step replay buffer — each entry contains `state`, `action`, `reward`, `nextState`, `done`, Q-values, hidden activations, timestep, and episode index. Used for geometry analysis and training the visualiser. (not included) |
 
 ---
 
