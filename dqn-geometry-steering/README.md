@@ -174,6 +174,13 @@ All Jacobians were computed with `torch.autograd.functional.jacobian`.
 | `NeuralNetwork_Fixed_Weights.json` | Trained network weights |
 | `ExperienceData_0.json` | Full experience buffer with hidden activations |
 | `v_linear_[idn\|relu\|tanh\|sigmoid].json` | Precomputed steering vectors |
+| `states.json` | 186,000 (state, reward) pairs sampled across the full trained policy run — used as the background point cloud in the manifold visualiser, coloured by reward |
+| `EpisodeNormal.json` | Baseline episode trajectory (no steering) — states + rewards |
+| `EpisodeIdn.json` | Steered episode — identity activation steering vector applied |
+| `EpisodeLrelu.json` | Steered episode — Leaky ReLU activation steering vector applied |
+| `EpisodeTanh.json` | Steered episode — Tanh activation steering vector applied |
+| `EpisodeSigmoid.json` | Steered episode — Sigmoid activation steering vector applied |
+| `ExperienceData_0.json` | 50,000-step replay buffer — each entry contains `state`, `action`, `reward`, `nextState`, `done`, Q-values, hidden activations, timestep, and episode index. Used for geometry analysis and training the visualiser. |
 
 ---
 
