@@ -1,60 +1,17 @@
-<h1 align="left">Geometric Deep Learning & Topological AI Research</h1>
-
-###
-
-<p align="left">
-  Computer Science & Mathematics Student @ University of Manchester | 
-  Research Interests: Geometric Deep Learning, Topological Data Analysis, 
-  Manifold Learning, and Deep Reinforcement Learning
-</p>
-
-###
-
-<h2 align="left">Research & Projects</h2>
+<h2 align="left">🔬 Research & Core Projects</h2>
 
 ###
 
 <div align="left">
-  🔬 <strong>Geometric Regularization in Deep Q-Networks</strong> - JavaScript/Python<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;Investigating Geometric Regularization and Topological Analysis in Deep Reinforcement Learning<br/><br/>
+  🛞 <strong>Manifold-Steering Deep Q-Networks</strong> - Python / PyTorch<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp; Investigating geometric regularisation and live manifold steering within deep reinforcement learning architectures to constrain latent representations to low-dimensional target geometries.<br/><br/>
+
+  📊 <strong>Topological Data Analysis on CartPole Agents</strong> - Python / Ripser<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;Mapping the neural activation manifolds of trained DRL agents. Utilizing PCA, persistent homology, and the First Fundamental Form to track and visualize hidden-layer structural transitions.<br/><br/>
+
+  <!---📜 <strong>A Structural Review of Policy Gradient Methods</strong> - LaTeX<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;A comprehensive theoretical deep-dive analyzing the mathematical foundations, objective functions, and optimization landscapes of REINFORCE, TRPO, and PPO.<br/><br/>-->
   
-  🧠 <strong>Neural Networks from Scratch</strong> - Python/NumPy<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;3-layer network (784-1024-10) achieving 95% on MNIST with manual backprop<br/><br/>
-  
-  📈 <strong>Custom Linear Regression</strong> - Python<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;Gradient descent with momentum matching scikit-learn performance<br/>
-</div>
-
-###
-
-<h2 align="left">Technical Stack</h2>
-
-###
-
-<div align="left">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" height="40" alt="Python" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="40" alt="JavaScript" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/processing/processing-original.svg" height="40" alt="Processing" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg" height="40" alt="NumPy" />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" height="40" alt="PyTorch" />
-  <img width="12" />
-</div>
-
-###
-
-<h2 align="left">Connect</h2>
-
-###
-
-<div align="left">
-  <a href="https://linkedin.com/in/Darren-Bouleke" target="_blank">
-    <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/linkedin/default.svg" width="52" height="40" alt="linkedin logo"  />
-  </a>
-  <a href="mailto:dkroahd@gmail.com" target="_blank">
-    <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/gmail/default.svg" width="52" height="40" alt="gmail logo"  />
-  </a>
+  🧠 <strong>First-Principles Deep Learning (MNIST)</strong> - Python / NumPy<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp; A custom 3-layer neural network (784-1024-10) built completely from scratch using manual backpropagation, achieving 95% accuracy on MNIST to master core optimization mechanics.<br/>
 </div>
